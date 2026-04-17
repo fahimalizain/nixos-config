@@ -1,0 +1,32 @@
+# sops configuration file
+#
+# SETUP WITH 1PASSWORD:
+# =====================
+#
+# 1. Generate an age key:
+#    age-keygen -o ~/.config/sops/age/keys.txt
+#
+# 2. Store the PRIVATE KEY in 1Password:
+#    - Create a Secure Note titled "NixOS Age Key" in your Private vault
+#    - Copy the contents of ~/.config/sops/age/keys.txt into it
+#    - Delete the local file: rm ~/.config/sops/age/keys.txt
+#
+#    The public key (age1...) will be used below for encryption
+#    The private key stays in 1Password and is only extracted during rebuilds
+#
+# 3. Get your public key:
+#    cat ~/.config/sops/age/keys.txt | grep "public key"
+#
+# 4. Update this file with your public key:
+#    Replace YOUR_AGE_PUBLIC_KEY below with your actual age1... key
+
+keys:
+  # Your age public key (the one starting with age1...)
+  - &user_fahimalizain YOUR_AGE_PUBLIC_KEY_PLACEHOLDER
+
+creation_rules:
+  # Encrypt all secrets/*.yaml files with your key
+  - path_regex: secrets/.*\.yaml$
+    key_groups:
+      - age:
+        - *user_fahimalizain

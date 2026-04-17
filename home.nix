@@ -23,8 +23,11 @@
       export SSH_AUTH_SOCK="/home/fahimalizain/.1password/agent.sock"
     '';
     shellAliases = {
-      nrs = "sudo nixos-rebuild switch --flake .#thinkpad-nixos";
-      nrb = "sudo nixos-rebuild build --flake .#thinkpad-nixos";
+      nrs = "~/nixos-config/scripts/nixos-rebuild-with-secrets.sh switch";
+      nrb = "~/nixos-config/scripts/nixos-rebuild-with-secrets.sh build";
+      # Legacy aliases (without secrets)
+      nrs-legacy = "sudo nixos-rebuild switch --flake .#thinkpad-nixos";
+      nrb-legacy = "sudo nixos-rebuild build --flake .#thinkpad-nixos";
     };
   };
 

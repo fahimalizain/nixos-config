@@ -63,6 +63,11 @@ sudo nixos-rebuild switch --flake .#thinkpad-nixos
 - `nrs` - `sudo nixos-rebuild switch --flake .#thinkpad-nixos` (rebuild and activate)
 - `nrb` - `sudo nixos-rebuild build --flake .#thinkpad-nixos` (build only, test for errors)
 
+**Aliases with Secrets** (uses 1Password for sops-nix):
+- `nrs` - Extracts age key from 1Password, rebuilds with secrets
+- `nrb` - Build only with secrets
+- `nrs-legacy` / `nrb-legacy` - Original commands without secrets
+
 ## Important Notes
 
 1. **Always use `--flake .#hostname`** when rebuilding, not just `nixos-rebuild switch`
@@ -126,7 +131,33 @@ This repo is public. Do not commit:
 - Private SSH keys
 - Sensitive configuration
 
-Use `passwordFile` options or a secrets manager like sops-nix or agenix for sensitive data.
+### Current Setup: sops-nix + 1Password
+
+We use [sops-nix](https://github.com/Mic92/sops-nix) with age encryption. The private key is stored in 1Password and extracted during rebuild.
+
+**Key Files:**
+- `.sops.yaml` - Configuration with age public key (safe to commit)
+- `secrets/secrets.yaml` - Encrypted secrets (safe to commit)
+- `secrets/README.md` - Detailed documentation
+- `scripts/nixos-rebuild-with-secrets.sh` - Rebuild script that fetches key from 1Password
+
+**Rebuild Commands:**
+- `nrs` - Rebuild with secrets (extracts age key from 1Password automatically)
+- `nrb` - Build only with secrets
+- `nrs-legacy` / `nrb-legacy` - Original commands without secrets
+
+**Managing Secrets:**
+```bash
+# Edit encrypted secrets (automatically decrypts/re-encrypts)
+sops secrets/secrets.yaml
+
+# First-time setup (see secrets/README.md for details)
+# 1. Generate age key: age-keygen -o ~/.config/sops/age/keys.txt
+# 2. Store private key in 1Password (Secure Note titled "NixOS Age Key")
+# 3. Delete local key file
+# 4. Add public key to .sops.yaml
+# 5. Encrypt: sops -e -i secrets/secrets.yaml
+```
 
 ## Modules Directory Philosophy
 

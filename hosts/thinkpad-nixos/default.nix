@@ -10,6 +10,13 @@
     ../../modules/programs/opencode.nix
   ];
 
+  # sops-nix configuration
+  sops.defaultSopsFile = ../../secrets/secrets.yaml;
+  sops.defaultSopsFormat = "yaml";
+  # Age key path - set via SOPS_AGE_KEY_FILE environment variable during rebuild
+  # The nrs/nrb aliases extract this from 1Password automatically
+  sops.age.keyFile = "/tmp/nixos-sops-age-key";
+
   # Boot loader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -54,7 +61,10 @@
   ];
 
   # Enable program modules
-  my_programs.rustdesk.enable = true;
+  my_programs.rustdesk = {
+    enable = true;
+    enableService = true;
+  };
   my_programs._1password = {
     enable = true;
     username = "fahimalizain";
