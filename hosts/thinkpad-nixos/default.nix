@@ -2,7 +2,7 @@
 
 {
   imports = [
-    ./hardware.nix
+    ./hardware-configuration.nix
   ];
 
   # Boot loader
