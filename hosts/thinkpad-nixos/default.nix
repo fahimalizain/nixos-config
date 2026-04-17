@@ -93,6 +93,19 @@
   # Docker
   virtualisation.docker.enable = true;
 
+  # Allow passwordless nrb (nixos-rebuild build only, not switch)
+  security.sudo.extraRules = [
+    {
+      users = [ "fahimalizain" ];
+      commands = [
+        {
+          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild build";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
+
   # This value determines the NixOS release
   system.stateVersion = "25.11";
 }
