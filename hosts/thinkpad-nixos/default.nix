@@ -54,11 +54,14 @@
   ];
 
   # Enable program modules
-  programs.rustdesk.enable = true;
-  programs._1password_personal.enable = true;
-  programs.google-chrome.enable = true;
-  programs.vscode.enable = true;
-  programs.opencode.enable = true;
+  my_programs.rustdesk.enable = true;
+  my_programs._1password = {
+    enable = true;
+    username = "fahimalizain";
+  };
+  my_programs.google-chrome.enable = true;
+  my_programs.vscode.enable = true;
+  my_programs.opencode.enable = true;
   programs.firefox.enable = true;
 
   # X11 and Desktop Environment

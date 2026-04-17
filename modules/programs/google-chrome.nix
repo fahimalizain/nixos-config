@@ -3,10 +3,10 @@
 with lib;
 
 let
-  cfg = config.programs.google-chrome;
+  cfg = config.my_programs.google-chrome;
 in
 {
-  options.programs.google-chrome = {
+  options.my_programs.google-chrome = {
     enable = mkEnableOption "Google Chrome browser";
   };
 

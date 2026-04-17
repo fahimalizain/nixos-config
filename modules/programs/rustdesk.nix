@@ -3,10 +3,10 @@
 with lib;
 
 let
-  cfg = config.programs.rustdesk;
+  cfg = config.my_programs.rustdesk;
 in
 {
-  options.programs.rustdesk = {
+  options.my_programs.rustdesk = {
     enable = mkEnableOption "RustDesk remote desktop";
   };
 

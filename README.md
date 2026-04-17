@@ -105,6 +105,29 @@ User configuration is managed via Home Manager as a NixOS module. This means:
 - No need to run `home-manager switch` separately
 - Configs are in `home.nix`
 
+## Validation (Before Applying)
+
+Always validate your changes before applying them to avoid breaking your system:
+
+```bash
+# Build without switching (safest validation)
+sudo nixos-rebuild build --flake .#thinkpad-nixos
+
+# Check flake structure and syntax
+nix flake check
+
+# Dry run - see what would change without building
+sudo nixos-rebuild dry-build --flake .#thinkpad-nixos
+
+# Test mode - build and activate temporarily (reverts on reboot)
+sudo nixos-rebuild test --flake .#thinkpad-nixos
+
+# Parse/validate a specific file
+nix-instantiate --eval hosts/thinkpad-nixos/default.nix
+```
+
+**Best practice:** Run `nix flake check` or `nixos-rebuild build` before every commit!
+
 ## Useful Commands
 
 ```bash

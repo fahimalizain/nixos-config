@@ -3,18 +3,22 @@
 with lib;
 
 let
-  cfg = config.programs._1password_personal;
+  cfg = config.my_programs._1password;
 in
 {
-  options.programs._1password_personal = {
+  options.my_programs._1password = {
     enable = mkEnableOption "1Password CLI and GUI with personal polkit settings";
+    username = mkOption {
+      type = types.str;
+      description = "User allowed to use 1Password GUI authentication";
+    };
   };
 
   config = mkIf cfg.enable {
     programs._1password.enable = true;
     programs._1password-gui = {
       enable = true;
-      polkitPolicyOwners = [ "fahimalizain" ];
+      polkitPolicyOwners = [ cfg.username ];
     };
   };
 }

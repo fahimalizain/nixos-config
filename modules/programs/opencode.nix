@@ -3,10 +3,10 @@
 with lib;
 
 let
-  cfg = config.programs.opencode;
+  cfg = config.my_programs.opencode;
 in
 {
-  options.programs.opencode = {
+  options.my_programs.opencode = {
     enable = mkEnableOption "OpenCode AI coding assistant";
   };
 

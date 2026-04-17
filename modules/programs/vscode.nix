@@ -3,10 +3,10 @@
 with lib;
 
 let
-  cfg = config.programs.vscode;
+  cfg = config.my_programs.vscode;
 in
 {
-  options.programs.vscode = {
+  options.my_programs.vscode = {
     enable = mkEnableOption "Visual Studio Code";
   };
 
