@@ -6,8 +6,7 @@
 
   # Packages for user
   home.packages = with pkgs; [
-    # Add your user packages here
-    # e.g., firefox, vscode, etc.
+    kdePackages.kate
   ];
 
   # Git configuration

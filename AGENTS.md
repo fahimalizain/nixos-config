@@ -82,3 +82,63 @@ This repo is public. Do not commit:
 - Sensitive configuration
 
 Use `passwordFile` options or a secrets manager like sops-nix or agenix for sensitive data.
+
+## Modules Directory Philosophy
+
+The `modules/` directory contains reusable NixOS modules that can be shared across multiple hosts or provide clean abstractions for complex configurations.
+
+### When to Create a Module
+
+**Create a module when:**
+1. **You need it on multiple hosts** (e.g., rustdesk on both laptop and desktop)
+2. **The configuration is complex** (many options, firewall rules, services)
+3. **You want to toggle it on/off easily** via `programs.xxx.enable = true/false`
+
+**Keep in host config when:**
+1. **Host-specific only** (timezone, hostname, user account)
+2. **One-off packages** (google-chrome, vscode - only on this machine)
+3. **Simple toggles** (`services.printing.enable = true` - no extra config needed)
+
+### Module Categorization
+
+Follow NixOS conventions:
+
+- **`modules/programs/`** - User-facing applications
+  - Example: `rustdesk.nix` - installs rustdesk-flutter
+  - Example: `firefox.nix`, `1password.nix`
+  
+- **`modules/services/`** - Background services and daemons
+  - Example: `docker.nix` - docker daemon with custom settings
+  - Example: `ssh.nix`, `vpn.nix`
+  
+- **`modules/hardware/`** - Hardware-specific configurations
+  - Example: `nvidia.nix`, `bluetooth.nix`, `trackpoint.nix`
+
+- **`modules/profiles/`** - High-level system profiles
+  - Example: `workstation.nix` - common dev tools
+  - Example: `gaming.nix`, `server.nix`
+
+### Current Module Examples
+
+**rustdesk** (`modules/programs/rustdesk.nix`):
+- Minimal module that just installs the package
+- Imported in `hosts/thinkpad-nixos/default.nix`
+- Enabled with `programs.rustdesk.enable = true;`
+- Could be extended later (firewall rules, service config)
+
+### Migration Strategy
+
+Start monolithic, extract gradually:
+1. **Phase 1**: Get system working with flakes (single host config file)
+2. **Phase 2**: Extract to modules when you:
+   - Add a second host that needs the same software
+   - Find the host config getting cluttered
+   - Need to toggle features on/off frequently
+
+### Adding a New Module
+
+1. Create file in appropriate subdirectory (e.g., `modules/programs/mynewapp.nix`)
+2. Define `options` (enable switch, package choice)
+3. Define `config` (what happens when enabled)
+4. Import in host's `default.nix`: `../../modules/programs/mynewapp.nix`
+5. Enable in host config: `programs.mynewapp.enable = true;`
