@@ -72,7 +72,48 @@ sudo nixos-rebuild switch --flake .#thinkpad-nixos
 1. Test the configuration builds: `sudo nixos-rebuild build --flake .#thinkpad-nixos`
 2. Check git status: `git status`
 3. Review changes: `git diff`
-4. Commit with descriptive message
+4. Commit with semantic message (see below)
+
+## Commit Message Convention
+
+Use semantic commit messages with type prefixes:
+
+**Types:**
+- `feat:` - New feature, package, or module
+  - Example: `feat: add rustdesk module for remote desktop`
+  - Example: `feat: install vscode and google-chrome`
+
+- `fix:` - Bug fix or correction
+  - Example: `fix: correct timezone to Asia/Kolkata`
+  - Example: `fix: remove duplicate package entry`
+
+- `chore:` - Maintenance, refactoring, cleanup
+  - Example: `chore: restructure hosts directory`
+  - Example: `chore: update flake.lock`
+
+- `docs:` - Documentation changes only
+  - Example: `docs: update README with rebuild instructions`
+  - Example: `docs: add module philosophy to AGENTS.md`
+
+- `refactor:` - Code change that neither fixes a bug nor adds a feature
+  - Example: `refactor: extract docker config to module`
+
+- `config:` - Configuration changes (settings, options)
+  - Example: `config: enable plasma6 desktop environment`
+  - Example: `config: set locale to en_IN`
+
+**Format:**
+```
+type: description in imperative mood
+
+Optional longer explanation if needed
+```
+
+**Examples from this repo:**
+- `feat: add rustdesk module`
+- `config: migrate all packages from original nixos config`
+- `docs: add modules directory philosophy`
+- `chore: rename hardware.nix to hardware-configuration.nix`
 
 ## Secrets Management
 
