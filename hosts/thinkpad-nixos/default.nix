@@ -55,11 +55,11 @@
 
   # Enable program modules
   programs.rustdesk.enable = true;
-  programs._1password.enable = true;
-  programs._1password-gui.enable = true;
+  programs._1password_personal.enable = true;
   programs.google-chrome.enable = true;
   programs.vscode.enable = true;
   programs.opencode.enable = true;
+  programs.firefox.enable = true;
 
   # X11 and Desktop Environment
   services.xserver.enable = true;
@@ -86,9 +86,6 @@
   # TrackPoint support (Lenovo ThinkPad)
   hardware.trackpoint.enable = true;
   hardware.trackpoint.emulateWheel = true;
-
-  # Programs
-  programs.firefox.enable = true;
 
   # Docker
   virtualisation.docker.enable = true;

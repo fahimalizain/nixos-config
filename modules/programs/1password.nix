@@ -3,27 +3,18 @@
 with lib;
 
 let
-  cfg = config.programs._1password;
-  cfgGui = config.programs._1password-gui;
+  cfg = config.programs._1password_personal;
 in
 {
-  options.programs._1password = {
-    enable = mkEnableOption "1Password CLI";
+  options.programs._1password_personal = {
+    enable = mkEnableOption "1Password CLI and GUI with personal polkit settings";
   };
 
-  options.programs._1password-gui = {
-    enable = mkEnableOption "1Password GUI";
+  config = mkIf cfg.enable {
+    programs._1password.enable = true;
+    programs._1password-gui = {
+      enable = true;
+      polkitPolicyOwners = [ "fahimalizain" ];
+    };
   };
-
-  config = mkMerge [
-    (mkIf cfg.enable {
-      programs._1password.enable = true;
-    })
-    (mkIf cfgGui.enable {
-      programs._1password-gui = {
-        enable = true;
-        polkitPolicyOwners = [ "fahimalizain" ];
-      };
-    })
-  ];
 }
