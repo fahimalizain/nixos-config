@@ -4,6 +4,10 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/programs/rustdesk.nix
+    ../../modules/programs/1password.nix
+    ../../modules/programs/google-chrome.nix
+    ../../modules/programs/vscode.nix
+    ../../modules/programs/opencode.nix
   ];
 
   # Boot loader
@@ -47,13 +51,15 @@
   # System packages
   environment.systemPackages = with pkgs; [
     git
-    google-chrome
-    vscode
-    opencode
   ];
 
-  # Enable RustDesk module
+  # Enable program modules
   programs.rustdesk.enable = true;
+  programs._1password.enable = true;
+  programs._1password-gui.enable = true;
+  programs.google-chrome.enable = true;
+  programs.vscode.enable = true;
+  programs.opencode.enable = true;
 
   # X11 and Desktop Environment
   services.xserver.enable = true;
@@ -83,11 +89,6 @@
 
   # Programs
   programs.firefox.enable = true;
-  programs._1password.enable = true;
-  programs._1password-gui = {
-    enable = true;
-    polkitPolicyOwners = [ "fahimalizain" ];
-  };
 
   # Docker
   virtualisation.docker.enable = true;
