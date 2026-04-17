@@ -18,6 +18,59 @@ My personal NixOS configuration using Flakes and Home Manager.
 
 ## Quick Start
 
+### Fresh Installation (New Machine)
+
+Installing NixOS from scratch using this flake:
+
+```bash
+# 1. Boot from NixOS USB installer
+# 2. Partition, format, and mount your disks to /mnt
+# 3. Generate basic config (creates hardware-configuration.nix)
+nixos-generate-config --root /mnt
+
+# 4. Clone your config repo
+mkdir -p /mnt/home/fahimalizain
+git clone https://github.com/yourusername/nixos-config /mnt/home/fahimalizain/nixos-config
+
+# 5. Copy the new hardware-configuration.nix
+cp /mnt/etc/nixos/hardware-configuration.nix /mnt/home/fahimalizain/nixos-config/hosts/thinkpad-nixos/
+
+# 6. Install NixOS from the flake
+cd /mnt/home/fahimalizain/nixos-config
+sudo nixos-install --flake .#thinkpad-nixos
+
+# 7. Set root password (if not using initialPassword)
+sudo passwd
+
+# 8. Reboot
+reboot
+
+# 9. After first boot, set user password
+passwd
+```
+
+### Existing Installation
+
+If you already have NixOS installed and want to switch to this config:
+
+```bash
+# Clone the repo
+git clone https://github.com/yourusername/nixos-config ~/nixos-config
+cd ~/nixos-config
+
+# Copy your current hardware config
+cp /etc/nixos/hardware-configuration.nix hosts/thinkpad-nixos/
+
+# Build and switch
+sudo nixos-rebuild switch --flake .#thinkpad-nixos
+
+# (Optional) Replace /etc/nixos with symlink
+sudo mv /etc/nixos /etc/nixos.backup
+sudo ln -s ~/nixos-config /etc/nixos
+```
+
+### Daily Usage
+
 ```bash
 # Build and switch to this configuration
 cd ~/nixos-config
