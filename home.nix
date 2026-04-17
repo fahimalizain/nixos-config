@@ -22,6 +22,10 @@
     bashrcExtra = ''
       export SSH_AUTH_SOCK="/home/fahimalizain/.1password/agent.sock"
     '';
+    shellAliases = {
+      nrs = "sudo nixos-rebuild switch --flake .#thinkpad-nixos";
+      nrb = "sudo nixos-rebuild build --flake .#thinkpad-nixos";
+    };
   };
 
   # This value determines the Home Manager release

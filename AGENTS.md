@@ -59,6 +59,10 @@ cd ~/nixos-config
 sudo nixos-rebuild switch --flake .#thinkpad-nixos
 ```
 
+**Aliases** (defined in `home.nix`):
+- `nrs` - `sudo nixos-rebuild switch --flake .#thinkpad-nixos` (rebuild and activate)
+- `nrb` - `sudo nixos-rebuild build --flake .#thinkpad-nixos` (build only, test for errors)
+
 ## Important Notes
 
 1. **Always use `--flake .#hostname`** when rebuilding, not just `nixos-rebuild switch`
