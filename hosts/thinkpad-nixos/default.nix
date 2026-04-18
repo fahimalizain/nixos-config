@@ -67,7 +67,10 @@
   };
   my_programs.google-chrome.enable = true;
   my_programs.vscode.enable = true;
-  my_programs.opencode.enable = true;
+  my_programs.opencode = {
+    enable = true;        # CLI version
+    desktop.enable = true; # Desktop GUI version
+  };
   programs.firefox.enable = true;
 
   # Host-specific autostart applications

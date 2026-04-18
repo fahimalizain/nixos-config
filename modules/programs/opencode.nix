@@ -4,26 +4,28 @@ with lib;
 
 let
   cfg = config.my_programs.opencode;
-  # Create isolated nixpkgs with unstable + opencode overlay
-  # This keeps system bun at stable version, opencode uses unstable
+  # Use nixpkgs-unstable for opencode packages
+  # This keeps system packages at stable version, opencode uses unstable
   opencodePkgs = import inputs.nixpkgs-unstable {
     system = pkgs.system;
-    overlays = [ inputs.opencode.overlays.default ];
     config.allowUnfree = true;
   };
 in
 {
   options.my_programs.opencode = {
-    enable = mkEnableOption "OpenCode AI coding assistant";
-    package = mkOption {
-      type = types.package;
-      default = opencodePkgs.opencode;
-      defaultText = literalExpression "opencode from isolated nixpkgs-unstable";
-      description = "The OpenCode package to install. Built with nixpkgs-unstable dependencies, isolated from system packages.";
+    enable = mkEnableOption "OpenCode AI coding assistant (CLI)";
+
+    desktop = {
+      enable = mkEnableOption "OpenCode AI coding assistant (Desktop GUI)";
     };
   };
 
-  config = mkIf cfg.enable {
-    environment.systemPackages = [ cfg.package ];
-  };
+  config = mkMerge [
+    (mkIf cfg.enable {
+      environment.systemPackages = [ opencodePkgs.opencode ];
+    })
+    (mkIf cfg.desktop.enable {
+      environment.systemPackages = [ opencodePkgs.opencode-desktop ];
+    })
+  ];
 }
