@@ -8,6 +8,7 @@
     ../../modules/programs/google-chrome.nix
     ../../modules/programs/vscode.nix
     ../../modules/programs/opencode.nix
+    ../../modules/services/tailscale.nix
   ];
 
   # Boot loader
@@ -63,6 +64,12 @@
   my_programs.vscode.enable = true;
   my_programs.opencode.enable = true;
   programs.firefox.enable = true;
+
+  # Enable service modules
+  my_services.tailscale = {
+    enable = true;
+    trayscale.enable = true;
+  };
 
   # X11 and Desktop Environment
   services.xserver.enable = true;
