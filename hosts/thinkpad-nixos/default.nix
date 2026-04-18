@@ -103,6 +103,20 @@
   hardware.trackpoint.enable = true;
   hardware.trackpoint.emulateWheel = true;
 
+  # TouchPad configuration with multi-finger gesture support
+  services.xserver.libinput = {
+    enable = true;
+    touchpad = {
+      tapping = true;
+      tappingDragLock = true;
+      naturalScrolling = true;
+      disableWhileTyping = true;
+      middleEmulation = true;
+      # Enable multi-finger gestures
+      clickMethod = "clickfinger";
+    };
+  };
+
   # Docker
   virtualisation.docker.enable = true;
 
