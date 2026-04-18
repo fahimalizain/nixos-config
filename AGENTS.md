@@ -80,12 +80,12 @@ sudo nixos-rebuild switch --flake .#thinkpad-nixos
 
 ## Commit Message Convention
 
-Use semantic commit messages with type prefixes:
+Use semantic commit messages with type prefixes. Keep the main message succinct (under 50 characters if possible).
 
 **Types:**
 - `feat:` - New feature, package, or module
-  - Example: `feat: add rustdesk module for remote desktop`
-  - Example: `feat: install vscode and google-chrome`
+  - Example: `feat: add rustdesk module`
+  - Example: `feat: add vscode and google-chrome`
 
 - `fix:` - Bug fix or correction
   - Example: `fix: correct timezone to Asia/Kolkata`
@@ -96,26 +96,28 @@ Use semantic commit messages with type prefixes:
   - Example: `chore: update flake.lock`
 
 - `docs:` - Documentation changes only
-  - Example: `docs: update README with rebuild instructions`
-  - Example: `docs: add module philosophy to AGENTS.md`
+  - Example: `docs: update README`
+  - Example: `docs: add module philosophy`
 
 - `refactor:` - Code change that neither fixes a bug nor adds a feature
   - Example: `refactor: extract docker config to module`
 
 - `config:` - Configuration changes (settings, options)
-  - Example: `config: enable plasma6 desktop environment`
+  - Example: `config: enable plasma6 desktop`
   - Example: `config: set locale to en_IN`
 
 **Format:**
 ```
-type: description in imperative mood
+type: description in imperative mood (keep it short)
 
-Optional longer explanation if needed
+Optional longer explanation if needed. Use the body for details,
+context, or reasoning. Keep the first line under 50 characters.
 ```
 
 **Examples from this repo:**
 - `feat: add rustdesk module`
-- `config: migrate all packages from original nixos config`
+- `feat: add vscode and google-chrome`
+- `config: migrate all packages from original config`
 - `docs: add modules directory philosophy`
 - `chore: rename hardware.nix to hardware-configuration.nix`
 

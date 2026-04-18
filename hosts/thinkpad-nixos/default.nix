@@ -72,8 +72,9 @@
     trayscale.enable = true;
   };
   my_services.cloudflare = {
-    warp.enable = true;      # Cloudflare One Client (WARP)
-    tunnel.enable = true;    # Cloudflare Tunnel (cloudflared)
+    warp.enable = true;                      # Cloudflare One Client (WARP)
+    tunnel.enable = true;                    # Cloudflare Tunnel (cloudflared)
+    zerotrust.fahimalizain.enable = true;    # Zero Trust hosts (fahimalizain org)
   };
 
   # X11 and Desktop Environment

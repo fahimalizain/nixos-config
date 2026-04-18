@@ -18,6 +18,11 @@ in
     tunnel = {
       enable = mkEnableOption "Cloudflare Tunnel (cloudflared)" // { default = false; };
     };
+    zerotrust = {
+      fahimalizain = {
+        enable = mkEnableOption "Zero Trust hosts for fahimalizain organization" // { default = false; };
+      };
+    };
   };
 
   config = mkMerge [
@@ -31,6 +36,12 @@ in
     })
     (mkIf cfg.tunnel.enable {
       environment.systemPackages = [ nixos-unstable.cloudflared ];
+    })
+    (mkIf cfg.zerotrust.fahimalizain.enable {
+      # Cloudflare Zero Trust virtual network hosts (fahimalizain organization)
+      networking.hosts = {
+        "100.96.0.1" = [ "CF-WorkPC" ];  # Work PC via Cloudflare WARP/Zero Trust
+      };
     })
   ];
 }
