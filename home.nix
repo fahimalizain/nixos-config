@@ -21,10 +21,12 @@
     enable = true;
     bashrcExtra = ''
       export SSH_AUTH_SOCK="/home/fahimalizain/.1password/agent.sock"
+      # NixOS config location (override if repo is elsewhere)
+      export NIXOS_CONFIG="''${NIXOS_CONFIG:-$HOME/nixos-config}"
     '';
     shellAliases = {
-      nrs = "sudo nixos-rebuild switch --flake .#thinkpad-nixos";
-      nrb = "sudo nixos-rebuild build --flake .#thinkpad-nixos";
+      nrs = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo nixos-rebuild switch --flake $NIXOS_CONFIG#thinkpad-nixos";
+      nrb = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo nixos-rebuild build --flake $NIXOS_CONFIG#thinkpad-nixos";
     };
   };
 
