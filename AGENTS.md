@@ -70,6 +70,7 @@ sudo nixos-rebuild switch --flake .#thinkpad-nixos
 3. **Don't edit `/etc/nixos/` directly** - It's symlinked to `~/nixos-config`
 4. **Home Manager is integrated** - User configs rebuild automatically with system
 5. **Test before committing** - Run `nixos-rebuild build` first to check for errors
+6. **NEVER run `nixos-rebuild` commands** - Do not run `nrs`, `nrb`, `nixos-rebuild switch`, `nixos-rebuild build`, or any rebuild commands unless the user explicitly asks you to. Only make the file changes; let the user handle rebuilding.
 
 ## Before Committing Changes
 
