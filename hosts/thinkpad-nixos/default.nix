@@ -55,6 +55,7 @@
   environment.systemPackages = with pkgs; [
     git
     spotify
+    slack
   ];
 
   # Enable program modules
