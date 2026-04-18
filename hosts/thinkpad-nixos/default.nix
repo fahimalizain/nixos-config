@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports = [
@@ -9,6 +9,7 @@
     ../../modules/programs/vscode.nix
     ../../modules/programs/opencode.nix
     ../../modules/services/tailscale.nix
+    ../../modules/services/cloudflare.nix
   ];
 
   # Boot loader
@@ -69,6 +70,10 @@
   my_services.tailscale = {
     enable = true;
     trayscale.enable = true;
+  };
+  my_services.cloudflare = {
+    warp.enable = true;      # Cloudflare One Client (WARP)
+    tunnel.enable = true;    # Cloudflare Tunnel (cloudflared)
   };
 
   # X11 and Desktop Environment
