@@ -12,8 +12,8 @@
   # Git configuration
   programs.git = {
     enable = true;
-    userName = "fahimalizain";
-    # userEmail = "your-email@example.com";  # Uncomment and set your email
+    userName = "Fahim Ali Zain";
+    userEmail = "fahimalizain@gmail.com";
   };
 
   # Bash configuration - migrated from .bashrc
