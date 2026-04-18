@@ -52,6 +52,7 @@
 |---------|--------|
 | **TrackPoint** | Enabled with wheel emulation |
 | **TouchPad** | Supported |
+| **Fingerprint** | Synaptics Prometheus MIS (06cb:00bd) |
 | **Desktop Environment** | KDE Plasma 6 |
 | **Display Manager** | SDDM |
 | **X11** | Enabled |
@@ -118,6 +119,7 @@ Available Kernel Modules:
 - ✅ Firefox
 - ✅ RustDesk
 - ✅ OpenCode
+- ✅ Fingerprint sensor (fprintd)
 - ✅ NetworkManager
 - ✅ Printing support (CUPS)
 

@@ -106,6 +106,9 @@
   # Docker
   virtualisation.docker.enable = true;
 
+  # Fingerprint sensor (Synaptics Prometheus MIS)
+  services.fprintd.enable = true;
+
   # Allow passwordless nrb (nixos-rebuild build only, not switch)
   security.sudo.extraRules = [
     {
