@@ -10,6 +10,7 @@
     ../../modules/programs/opencode.nix
     ../../modules/services/tailscale.nix
     ../../modules/services/cloudflare.nix
+    ./autostart.nix
   ];
 
   # Boot loader
@@ -65,6 +66,9 @@
   my_programs.vscode.enable = true;
   my_programs.opencode.enable = true;
   programs.firefox.enable = true;
+
+  # Host-specific autostart applications
+  my_services.autostart._1password = true;
 
   # Enable service modules
   my_services.tailscale = {
