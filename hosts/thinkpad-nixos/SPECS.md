@@ -9,6 +9,21 @@
 | **Product Family** | ThinkPad T14 Gen 2i |
 | **Platform** | x86_64-linux |
 
+## Device Identity
+
+| Identifier | Value |
+|------------|-------|
+| **Machine ID** | `e4af9ba42d8f4d90a500b1917947339f` |
+| **MTM (Machine Type-Model)** | 20W1S21K00 |
+| **Product SKU** | LENOVO_MT_20W1_BU_Think_FM_ThinkPad T14 Gen 2i |
+| **WiFi MAC** | `a0:e7:0b:25:b5:93` |
+| **SSD Serial** | 213933803774 |
+| **Battery Serial** | 1706 |
+| **BIOS Version** | N34ET53W (1.53) |
+| **BIOS Date** | 08/31/2022 |
+
+> **Note:** Serial numbers are stored here for device identification during future swaps/replacements. The system serial number is not exposed via sysfs for security reasons.
+
 ## Processor
 
 | Specification | Details |
@@ -24,8 +39,15 @@
 
 | Specification | Details |
 |---------------|---------|
-| **Total RAM** | ~24 GB |
-| **Type** | DDR4 (Soldered + SO-DIMM) |
+| **Total RAM** | 24 GB (22.6 GiB usable) |
+| **Type** | DDR4-3200 |
+| **Speed** | 3200 MT/s (1600 MHz clock) |
+| **Configuration** | 8 GB Soldered (Onboard) + 16 GB SO-DIMM |
+| **Slots Populated** | 2 of 2 |
+| **SO-DIMM Slot** | 1x DDR4-3200 SO-DIMM (upgradeable) |
+| **Max Supported** | 48 GB (8 GB soldered + 32 GB SO-DIMM) |
+| **Memory Channels** | Dual Channel |
+| **Form Factor** | 260-pin SO-DIMM |
 
 ## Storage
 
@@ -56,6 +78,16 @@
 | **Desktop Environment** | KDE Plasma 6 |
 | **Display Manager** | SDDM |
 | **X11** | Enabled |
+
+## Camera
+
+| Specification | Details |
+|---------------|---------|
+| **Model** | Chicony Electronics Integrated Camera |
+| **USB ID** | 04f2:b6d0 |
+| **Connection** | USB 2.0 High Speed (480 Mbps) |
+| **Device Path** | /dev/video0 |
+| **V4L2 Support** | Yes (capture capable) |
 
 ## Connectivity
 
