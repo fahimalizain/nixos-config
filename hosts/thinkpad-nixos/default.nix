@@ -56,6 +56,7 @@
     git
     spotify
     slack
+    nodejs_22
   ];
 
   # Enable program modules

@@ -16,6 +16,9 @@
     userEmail = "fahimalizain@gmail.com";
   };
 
+  # npm global packages directory (NixOS requires non-nix-store location)
+  home.file.".npm-global/.keep".text = "";
+
   # Bash configuration - migrated from .bashrc
   programs.bash = {
     enable = true;
@@ -23,6 +26,9 @@
       export SSH_AUTH_SOCK="/home/fahimalizain/.1password/agent.sock"
       # NixOS config location (override if repo is elsewhere)
       export NIXOS_CONFIG="''${NIXOS_CONFIG:-$HOME/nixos-config}"
+      # npm global packages (NixOS-compatible)
+      export NPM_CONFIG_PREFIX="$HOME/.npm-global"
+      export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
     '';
     shellAliases = {
       nrs = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo nixos-rebuild switch --flake $NIXOS_CONFIG#thinkpad-nixos";
