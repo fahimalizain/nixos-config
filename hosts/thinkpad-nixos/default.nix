@@ -54,6 +54,7 @@
   # System packages
   environment.systemPackages = with pkgs; [
     git
+    spotify
   ];
 
   # Enable program modules
