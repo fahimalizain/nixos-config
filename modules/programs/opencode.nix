@@ -54,7 +54,7 @@ in
     };
 
     fixDbSymlink = {
-      enable = mkEnableOption "Fix database migration issue by symlinking opencode-stable.db to opencode.db (recommended for nix flakes builds)";
+      enable = mkEnableOption "Fix database migration issue by symlinking opencode.db to opencode-local.db (recommended for nix flakes builds)";
       username = mkOption {
         type = types.str;
         default = "fahimalizain";
@@ -73,21 +73,21 @@ in
     (mkIf cfg.fixDbSymlink.enable {
       # Fix for opencode database migration issue
       # See: https://github.com/anomalyco/opencode/issues/16885
-      # Creates symlink from opencode-stable.db to opencode.db to prevent
+      # Creates symlink from opencode.db to opencode-local.db to prevent
       # database migration on every run for locally built opencode (nix flakes)
       home-manager.users.${cfg.fixDbSymlink.username}.home.activation.opencodeDbSymlink = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         opencodeDir="$HOME/.local/share/opencode"
-        stableDb="$opencodeDir/opencode-stable.db"
+        localDb="$opencodeDir/opencode-local.db"
         targetDb="$opencodeDir/opencode.db"
 
         if [ -d "$opencodeDir" ]; then
-          # If stable db exists and target doesn't exist or is not already the correct symlink
-          if [ -f "$stableDb" ]; then
+          # If local db exists and target doesn't exist or is not already the correct symlink
+          if [ -f "$localDb" ]; then
             if [ ! -e "$targetDb" ]; then
-              $DRY_RUN_CMD ln -s "$stableDb" "$targetDb"
-            elif [ -L "$targetDb" ] && [ "$(readlink "$targetDb")" != "$stableDb" ]; then
+              $DRY_RUN_CMD ln -s "$localDb" "$targetDb"
+            elif [ -L "$targetDb" ] && [ "$(readlink "$targetDb")" != "$localDb" ]; then
               $DRY_RUN_CMD rm "$targetDb"
-              $DRY_RUN_CMD ln -s "$stableDb" "$targetDb"
+              $DRY_RUN_CMD ln -s "$localDb" "$targetDb"
             fi
           fi
         fi
