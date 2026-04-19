@@ -1,151 +1,37 @@
 # OpenCode Module
 
-This document explains how OpenCode is integrated into the NixOS configuration, the approaches considered, and why the current implementation was chosen.
+This document explains how OpenCode is integrated into the NixOS configuration, the approaches considered, known upstream issues, and workarounds.
 
 ## Overview
 
-OpenCode (v1.4.7) is installed as a system package using its upstream flake, isolated from the stable nixpkgs to avoid dependency conflicts.
+OpenCode (CLI and Desktop) are installed from the upstream flake (v1.14.18), isolated from stable nixpkgs to avoid dependency conflicts.
 
-## The Problem
+**Current Status**: Build requires workarounds for upstream issues #23256 and #11755.
 
-1. **Nixpkgs version is outdated**: NixOS 25.11 ships OpenCode v1.1.14, while upstream is at v1.4.7 (3 major versions behind)
-2. **Build dependencies mismatch**: OpenCode v1.4.7 requires Bun ^1.3.11, but nixos-25.11 only has Bun 1.3.3
-3. **System isolation needed**: We want stable Bun for the system, but cutting-edge Bun for building OpenCode
+## Known Upstream Issues
 
-## Approaches Considered
+### Issue #23256 - Missing prettier dependency (CLI build)
 
-### Approach 1: Direct Flake Input with Overlay
+**Problem**: v1.14.18 introduced dynamic imports of `prettier` in `generate.ts`, but `prettier` is not declared in `package.json`. This breaks the Nix build:
 
-**Implementation**: Add opencode as a flake input and apply its overlay globally.
-
-```nix
-# flake.nix
-inputs.opencode.url = "github:anomalyco/opencode/v1.4.7";
-
-# In nixosSystem
-nixpkgs.overlays = [ opencode.overlays.default ];
+```
+error: Could not resolve: "prettier". Maybe you need to "bun install"?
 ```
 
-**Pros**:
-- Simple, idiomatic NixOS pattern
-- Works seamlessly with Home Manager
-- Single package set (pkgs.opencode works everywhere)
+**Workaround**: Patch `generate.ts` during `postPatch` to stub out the prettier imports.
 
-**Cons**:
-- Pollutes global nixpkgs with overlay
-- All packages see the overlaid version
-- `flake.nix` grows with each external dependency
+### Issue #11755 - Missing cargo outputHashes (Desktop build)
 
-**Verdict**: Rejected - we wanted isolation and minimal flake.nix changes.
+**Problem**: The desktop package depends on git versions of `specta` and `tauri-specta`, but the flake doesn't provide the required `outputHashes` for `importCargoLock`.
 
-### Approach 2: Sub-Flake Pattern
-
-**Implementation**: Create a separate flake for external dependencies.
-
-```nix
-# external/flake.nix - holds all external deps
-# Main flake.nix - just one input: external.url = "path:./external"
+**Error**:
+```
+error: No hash was found while vendoring the git dependency specta-2.0.0-rc.22.
 ```
 
-**Pros**:
-- Keeps main flake.nix minimal
-- Dependencies organized by concern
-- Could have separate lock files per module
+**Workaround**: Override `cargoDeps` with the correct `outputHashes` for the git dependencies.
 
-**Cons**:
-- Two lock files to manage (main + external)
-- Complex import chain
-- Overkill for personal configs
-- Breaks single source of truth for versions
-
-**Verdict**: Rejected - too complex for a single-user system.
-
-### Approach 3: Global Bun Override with Overlay
-
-**Implementation**: Override Bun globally to use nixpkgs-unstable version.
-
-```nix
-nixpkgs.overlays = [
-  (final: prev: {
-    bun = nixpkgs-unstable.legacyPackages.${pkgs.system}.bun;
-  })
-  opencode.overlays.default
-];
-```
-
-**Pros**:
-- Fixes the build
-- Simple implementation
-
-**Cons**:
-- Changes Bun version system-wide
-- If you install `pkgs.bun` elsewhere, you get unstable version
-- Violates principle of least surprise
-
-**Verdict**: Rejected - too invasive, affects system packages.
-
-### Approach 4: Isolated Nixpkgs Instance (Chosen)
-
-**Implementation**: Create a separate nixpkgs instance just for OpenCode.
-
-```nix
-# modules/programs/opencode.nix
-opencodePkgs = import inputs.nixpkgs-unstable {
-  system = pkgs.system;
-  overlays = [ inputs.opencode.overlays.default ];
-};
-
-package = opencodePkgs.opencode;
-```
-
-**Pros**:
-- **Complete isolation**: OpenCode uses unstable dependencies, system stays on stable
-- **Self-contained module**: All logic in one file
-- **Minimal flake.nix**: Just declares inputs, no special logic
-- **Reproducible**: Uses locked inputs via `specialArgs`
-- **Extensible**: Pattern works for any future external packages
-
-**Cons**:
-- Slightly more memory usage (two nixpkgs evaluations)
-- Module receives extra argument via `specialArgs`
-
-**Verdict**: **Accepted** - best balance of isolation, simplicity, and maintainability.
-
-## Final Implementation
-
-### flake.nix
-
-```nix
-{
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    
-    home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    opencode = {
-      url = "github:anomalyco/opencode/v1.4.7";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-  };
-
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, opencode, ... }@inputs: {
-    nixosConfigurations = {
-      thinkpad-nixos = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = { inherit inputs; };  # Pass all inputs to modules
-        modules = [
-          ./hosts/thinkpad-nixos
-          # ... other modules
-        ];
-      };
-    };
-  };
-}
-```
+## Implementation
 
 ### modules/programs/opencode.nix
 
@@ -156,67 +42,112 @@ with lib;
 
 let
   cfg = config.my_programs.opencode;
-  
-  # Create isolated nixpkgs instance with unstable + opencode overlay
-  # This keeps system packages on stable, while opencode builds with latest dependencies
+
+  # Custom overlay that patches opencode and opencode-desktop
+  opencodePatchesOverlay = final: prev: {
+    # Patch opencode to fix missing prettier dependency
+    # https://github.com/anomalyco/opencode/issues/23256
+    opencode = prev.opencode.overrideAttrs (old: {
+      postPatch = (old.postPatch or "") + ''
+        substituteInPlace packages/opencode/src/cli/cmd/generate.ts \
+          --replace-fail 'const prettier = await import("prettier")' 'const prettier = { format: async (s: string) => s }' \
+          --replace-fail 'const babel = await import("prettier/plugins/babel")' 'const babel = {}' \
+          --replace-fail 'const estree = await import("prettier/plugins/estree")' 'const estree = {}'
+      '';
+    });
+
+    # Rebuild opencode-desktop with patched opencode and fixed cargo hashes
+    # https://github.com/anomalyco/opencode/issues/11755
+    opencode-desktop = (final.callPackage (inputs.opencode + "/nix/desktop.nix") {
+      opencode = final.opencode;  # Use the patched opencode from final
+    }).overrideAttrs (old: {
+      cargoDeps = final.rustPlatform.importCargoLock {
+        lockFile = inputs.opencode + "/packages/desktop/src-tauri/Cargo.lock";
+        outputHashes = {
+          "specta-2.0.0-rc.22" = "sha256-YsyOAnXELLKzhNlJ35dHA6KGbs0wTAX/nlQoW8wWyJQ=";
+          "tauri-2.9.5" = "sha256-dv5E/+A49ZBvnUQUkCGGJ21iHrVvrhHKNcpUctivJ8M=";
+          "tauri-specta-2.0.0-rc.21" = "sha256-n2VJ+B1nVrh6zQoZyfMoctqP+Csh7eVHRXwUQuiQjaQ=";
+        };
+      };
+    });
+  };
+
+  # Create isolated nixpkgs with unstable + upstream overlay + our patches
+  # Our patches overlay must come AFTER the upstream one so we can override its packages
   opencodePkgs = import inputs.nixpkgs-unstable {
     system = pkgs.system;
-    overlays = [ inputs.opencode.overlays.default ];
     config.allowUnfree = true;
+    overlays = [
+      inputs.opencode.overlays.default  # First: add opencode and opencode-desktop
+      opencodePatchesOverlay             # Second: patch them
+    ];
   };
 in
 {
   options.my_programs.opencode = {
-    enable = mkEnableOption "OpenCode AI coding assistant";
-    package = mkOption {
-      type = types.package;
-      default = opencodePkgs.opencode;
-      defaultText = literalExpression "opencode from isolated nixpkgs-unstable";
-      description = "The OpenCode package to install. Built with nixpkgs-unstable dependencies, isolated from system packages.";
+    enable = mkEnableOption "OpenCode AI coding assistant (CLI)";
+
+    desktop = {
+      enable = mkEnableOption "OpenCode AI coding assistant (Desktop GUI)";
     };
   };
 
-  config = mkIf cfg.enable {
-    environment.systemPackages = [ cfg.package ];
-  };
+  config = mkMerge [
+    (mkIf cfg.enable {
+      environment.systemPackages = [ opencodePkgs.opencode ];
+    })
+    (mkIf cfg.desktop.enable {
+      environment.systemPackages = [ opencodePkgs.opencode-desktop ];
+    })
+  ];
 }
 ```
 
-## Key Insights
+## Key Design Decisions
 
-1. **Flakes require explicit inputs**: You cannot use external flakes without declaring them in `flake.nix`. This is by design for reproducibility.
+### Why Two Overlays?
 
-2. **Overlays are global**: When you apply an overlay to nixpkgs, it affects ALL packages. Use isolated nixpkgs instances when you need different versions.
+The implementation uses two overlays in sequence:
 
-3. **nixpkgs-unstable vs nixos-25.11**:
-   - `nixos-25.11` = Stable release, tested, quarterly updates
-   - `nixpkgs-unstable` = Rolling release, daily updates, latest packages
+1. **Upstream overlay** (`inputs.opencode.overlays.default`): Adds `opencode` and `opencode-desktop` packages
+2. **Patches overlay** (`opencodePatchesOverlay`): Overrides both packages to fix build issues
 
-4. **specialArgs vs _module.args**:
-   - `specialArgs` in `nixosSystem`: Passes arguments to ALL modules
-   - `_module.args`: Can be set per-module, but requires the module to be evaluated first
+This ordering is critical - patches must come AFTER the upstream overlay so `prev.opencode` refers to the upstream package, and `final.opencode` refers to the patched version.
 
-5. **Building from source**: The opencode flake builds from source (TypeScript/Bun project). This requires:
-   - Correct Bun version
-   - Node.js
-   - All dependencies defined in the flake
-   - No pre-built binary cache available (unless upstream provides one)
+### Why Rebuild opencode-desktop?
+
+`opencode-desktop` copies the `opencode` CLI as a sidecar binary during its build. If we just patched `opencode`, the desktop build would still use the unpatched version as its dependency. By using `final.callPackage` with `opencode = final.opencode`, we ensure the desktop is built with the patched CLI.
+
+## Usage
+
+Enable in your host configuration:
+
+```nix
+my_programs.opencode = {
+  enable = true;        # CLI version (v1.14.18)
+  desktop.enable = true; # Desktop GUI (v1.14.18)
+};
+```
 
 ## Updating OpenCode
 
 When a new version is released:
 
-1. Edit `flake.nix` to update the version tag:
+1. Check if upstream has fixed the issues:
+   - [#23256](https://github.com/anomalyco/opencode/issues/23256) - prettier dependency
+   - [#11755](https://github.com/anomalyco/opencode/issues/11755) - cargo outputHashes
+
+2. Edit `flake.nix` to update the version tag:
    ```nix
-   opencode.url = "github:anomalyco/opencode/v1.5.0";
+   opencode.url = "github:anomalyco/opencode/v1.15.0";
    ```
 
-2. Update the flake.lock:
+3. Update the flake.lock:
    ```bash
    nix flake update opencode
    ```
 
-3. Test the build:
+4. Test the build:
    ```bash
    nrb  # Build only
    nrs  # Build and activate
@@ -224,25 +155,43 @@ When a new version is released:
 
 ## Troubleshooting
 
-### Build fails with Bun version mismatch
+### substituteInPlace fails silently
+
+If the build still fails with the same error, the substitution pattern may not match. Check the actual source file:
+
+```bash
+# Extract the source and check the file
+nix build .#nixosConfigurations.thinkpad-nixos.config.system.build.toplevel --dry-run 2>&1 | grep opencode
+cat /nix/store/...-source/packages/opencode/src/cli/cmd/generate.ts | head -40
+```
+
+The pattern must match exactly, including quotes and spacing.
+
+### Hash mismatch in cargoDeps
 
 If you see:
 ```
-error: This script requires bun@^1.X.X, but you are using bun@1.Y.Y
+error: hash mismatch in fixed-output derivation '...-specta-...'
 ```
 
-The isolated nixpkgs-unstable should provide a newer Bun. If not, update the unstable input:
-```bash
-nix flake update nixpkgs-unstable
-```
+The `outputHashes` need updating. Run the build to get the correct hash from the error message and update it in the module.
 
 ### "undefined variable 'inputs'"
 
 Make sure `specialArgs = { inherit inputs; }` is set in your `nixosSystem` configuration.
 
+## Future Improvements
+
+Once upstream fixes the issues:
+
+1. **Remove the prettier patch**: When #23256 is fixed, remove the `postPatch` override for `opencode`
+2. **Remove cargoDeps override**: When #11755 is fixed, remove the `cargoDeps` override for `opencode-desktop`
+3. **Simplify to one overlay**: Just use `inputs.opencode.overlays.default` directly
+
 ## References
 
 - [OpenCode Repository](https://github.com/anomalyco/opencode)
-- [OpenCode v1.4.7 Release](https://github.com/anomalyco/opencode/releases/tag/v1.4.7)
+- [OpenCode v1.14.18 Release](https://github.com/anomalyco/opencode/releases/tag/v1.14.18)
+- [Issue #23256 - prettier dependency](https://github.com/anomalyco/opencode/issues/23256)
+- [Issue #11755 - cargo outputHashes](https://github.com/anomalyco/opencode/issues/11755)
 - [NixOS Overlays Documentation](https://nixos.wiki/wiki/Overlays)
-- [Nix Flakes Wiki](https://nixos.wiki/wiki/Flakes)
