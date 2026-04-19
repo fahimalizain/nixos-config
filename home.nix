@@ -1,4 +1,4 @@
-{ config, pkgs, hostname, ... }:
+{ config, pkgs, pkgs-unstable, hostname, ... }:
 
 {
   # Common packages for all hosts

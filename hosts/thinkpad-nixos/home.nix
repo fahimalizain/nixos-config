@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, pkgs-unstable, ... }:
 
 {
   # User account settings (host-specific)
@@ -9,6 +9,8 @@
   # Common packages go in ../../home.nix
   home.packages = with pkgs; [
     kdePackages.kate
+  ] ++ [
+    pkgs-unstable.go  # Go from unstable channel (newer version)
   ];
 
   # Host-specific environment variables

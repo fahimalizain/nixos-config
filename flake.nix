@@ -17,19 +17,31 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, nixos-unstable, home-manager, opencode, ... }@inputs: {
+  outputs = { self, nixpkgs, nixpkgs-unstable, nixos-unstable, home-manager, opencode, ... }@inputs: let
+    mkPkgsUnstable = system: import nixpkgs-unstable {
+      inherit system;
+      config.allowUnfree = true;
+    };
+  in {
     nixosConfigurations = {
       thinkpad-nixos = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
-        specialArgs = { inherit inputs; hostname = "thinkpad-nixos"; };
+        specialArgs = {
+          inherit inputs;
+          pkgs-unstable = mkPkgsUnstable "x86_64-linux";
+          hostname = "thinkpad-nixos";
+        };
         modules = [
           ./hosts/thinkpad-nixos
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = { hostname = "thinkpad-nixos"; };
-            home-manager.users.fahimalizain = { config, pkgs, hostname, ... }: {
+            home-manager.extraSpecialArgs = {
+              pkgs-unstable = mkPkgsUnstable "x86_64-linux";
+              hostname = "thinkpad-nixos";
+            };
+            home-manager.users.fahimalizain = { config, pkgs, pkgs-unstable, hostname, ... }: {
               imports = [
                 ./home.nix
                 ./hosts/thinkpad-nixos/home.nix
