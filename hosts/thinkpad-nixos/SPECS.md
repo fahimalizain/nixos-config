@@ -17,6 +17,7 @@
 | **MTM (Machine Type-Model)** | 20W1S21K00 |
 | **Product SKU** | LENOVO_MT_20W1_BU_Think_FM_ThinkPad T14 Gen 2i |
 | **WiFi MAC** | `a0:e7:0b:25:b5:93` |
+| **Bluetooth MAC** | `a0:e7:0b:25:b5:97` |
 | **SSD Serial** | 213933803774 |
 | **Battery Serial** | 1706 |
 | **BIOS Version** | N34ET53W (1.53) |
@@ -96,6 +97,7 @@
 | **Thunderbolt** | Enabled (initrd) |
 | **USB** | USB 3.2 / USB-C |
 | **Network** | NetworkManager |
+| **Bluetooth** | Intel AX201/AX211 (btusb/btintel) |
 | **Audio** | PipeWire with PulseAudio compatibility |
 | **Printing** | CUPS enabled |
 
@@ -126,6 +128,7 @@ Available Kernel Modules:
 - sd_mod (SD cards)
 - sdhci_pci (SD host controller)
 - kvm-intel (Intel virtualization)
+- btusb (Bluetooth USB driver)
 ```
 
 ## Software Environment
@@ -152,6 +155,7 @@ Available Kernel Modules:
 - ✅ RustDesk
 - ✅ OpenCode
 - ✅ Fingerprint sensor (fprintd)
+- ✅ Bluetooth (Intel AX201/AX211)
 - ✅ NetworkManager
 - ✅ Printing support (CUPS)
 
