@@ -114,7 +114,7 @@
   hardware.trackpoint.emulateWheel = true;
 
   # TouchPad configuration with multi-finger gesture support
-  services.xserver.libinput = {
+  services.libinput = {
     enable = true;
     touchpad = {
       tapping = true;

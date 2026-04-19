@@ -9,8 +9,10 @@
   # Git configuration
   programs.git = {
     enable = true;
-    userName = "Fahim Ali Zain";
-    userEmail = "fahimalizain@gmail.com";
+    settings.user = {
+      name = "Fahim Ali Zain";
+      email = "fahimalizain@gmail.com";
+    };
   };
 
   # npm global packages directory (NixOS requires non-nix-store location)

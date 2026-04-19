@@ -18,6 +18,7 @@
   };
 
   outputs = { self, nixpkgs, nixpkgs-unstable, nixos-unstable, home-manager, opencode, ... }@inputs: let
+    # TODO: Remove `inherit system` when nixpkgs-unstable fixes stdenv.hostPlatform.system deprecation
     mkPkgsUnstable = system: import nixpkgs-unstable {
       inherit system;
       config.allowUnfree = true;
