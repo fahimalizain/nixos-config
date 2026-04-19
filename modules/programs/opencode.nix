@@ -52,6 +52,15 @@ in
     desktop = {
       enable = mkEnableOption "OpenCode AI coding assistant (Desktop GUI)";
     };
+
+    fixDbSymlink = {
+      enable = mkEnableOption "Fix database migration issue by symlinking opencode-stable.db to opencode.db (recommended for nix flakes builds)";
+      username = mkOption {
+        type = types.str;
+        default = "fahimalizain";
+        description = "Username for which to set up the database symlink";
+      };
+    };
   };
 
   config = mkMerge [
@@ -60,6 +69,29 @@ in
     })
     (mkIf cfg.desktop.enable {
       environment.systemPackages = [ opencodePkgs.opencode-desktop ];
+    })
+    (mkIf cfg.fixDbSymlink.enable {
+      # Fix for opencode database migration issue
+      # See: https://github.com/anomalyco/opencode/issues/16885
+      # Creates symlink from opencode-stable.db to opencode.db to prevent
+      # database migration on every run for locally built opencode (nix flakes)
+      home-manager.users.${cfg.fixDbSymlink.username}.home.activation.opencodeDbSymlink = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        opencodeDir="$HOME/.local/share/opencode"
+        stableDb="$opencodeDir/opencode-stable.db"
+        targetDb="$opencodeDir/opencode.db"
+
+        if [ -d "$opencodeDir" ]; then
+          # If stable db exists and target doesn't exist or is not already the correct symlink
+          if [ -f "$stableDb" ]; then
+            if [ ! -e "$targetDb" ]; then
+              $DRY_RUN_CMD ln -s "$stableDb" "$targetDb"
+            elif [ -L "$targetDb" ] && [ "$(readlink "$targetDb")" != "$stableDb" ]; then
+              $DRY_RUN_CMD rm "$targetDb"
+              $DRY_RUN_CMD ln -s "$stableDb" "$targetDb"
+            fi
+          fi
+        fi
+      '';
     })
   ];
 }

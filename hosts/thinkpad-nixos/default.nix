@@ -70,6 +70,7 @@
   my_programs.opencode = {
     enable = true;        # CLI version
     desktop.enable = true; # Desktop GUI version
+    fixDbSymlink.enable = true;  # Fix database migration issue for nix flakes build
   };
   programs.firefox.enable = true;
 

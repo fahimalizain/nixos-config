@@ -6,7 +6,7 @@ This document explains how OpenCode is integrated into the NixOS configuration, 
 
 OpenCode (CLI and Desktop) are installed from the upstream flake (v1.14.18), isolated from stable nixpkgs to avoid dependency conflicts.
 
-**Current Status**: Build requires workarounds for upstream issues #23256 and #11755.
+**Current Status**: Build requires workarounds for upstream issues #23256, #11755, and #16885.
 
 ## Known Upstream Issues
 
@@ -30,6 +30,27 @@ error: No hash was found while vendoring the git dependency specta-2.0.0-rc.22.
 ```
 
 **Workaround**: Override `cargoDeps` with the correct `outputHashes` for the git dependencies.
+
+### Issue #16885 - Database migration on every run (Nix flakes builds)
+
+**Problem**: When opencode is built locally via Nix flakes, it uses a different build path on each rebuild (e.g., `/nix/store/...-opencode-1.14.18`). This causes opencode to think it's a "new version" and triggers database migration on every run, which is slow and unnecessary.
+
+**Symptom**:
+```
+# Every time you run opencode:
+> opencode migrate db...
+```
+
+**Workaround**: Create a symlink from `opencode-stable.db` to `opencode.db`. The module provides a home-manager activation script that sets this up automatically.
+
+**Enable the fix**:
+```nix
+my_programs.opencode = {
+  enable = true;
+  desktop.enable = true;
+  fixDbSymlink.enable = true;  # Enable database symlink fix
+};
+```
 
 ## Implementation
 
@@ -90,6 +111,15 @@ in
     desktop = {
       enable = mkEnableOption "OpenCode AI coding assistant (Desktop GUI)";
     };
+
+    fixDbSymlink = {
+      enable = mkEnableOption "Fix database migration issue by symlinking opencode-stable.db to opencode.db (recommended for nix flakes builds)";
+      username = mkOption {
+        type = types.str;
+        default = "fahimalizain";
+        description = "Username for which to set up the database symlink";
+      };
+    };
   };
 
   config = mkMerge [
@@ -98,6 +128,29 @@ in
     })
     (mkIf cfg.desktop.enable {
       environment.systemPackages = [ opencodePkgs.opencode-desktop ];
+    })
+    (mkIf cfg.fixDbSymlink.enable {
+      # Fix for opencode database migration issue
+      # See: https://github.com/anomalyco/opencode/issues/16885
+      # Creates symlink from opencode-stable.db to opencode.db to prevent
+      # database migration on every run for locally built opencode (nix flakes)
+      home-manager.users.${cfg.fixDbSymlink.username}.home.activation.opencodeDbSymlink = inputs.home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        opencodeDir="$HOME/.local/share/opencode"
+        stableDb="$opencodeDir/opencode-stable.db"
+        targetDb="$opencodeDir/opencode.db"
+
+        if [ -d "$opencodeDir" ]; then
+          # If stable db exists and target doesn't exist or is not already the correct symlink
+          if [ -f "$stableDb" ]; then
+            if [ ! -e "$targetDb" ]; then
+              $DRY_RUN_CMD ln -s "$stableDb" "$targetDb"
+            elif [ -L "$targetDb" ] && [ "$(readlink "$targetDb")" != "$stableDb" ]; then
+              $DRY_RUN_CMD rm "$targetDb"
+              $DRY_RUN_CMD ln -s "$stableDb" "$targetDb"
+            fi
+          fi
+        fi
+      '';
     })
   ];
 }
@@ -126,6 +179,7 @@ Enable in your host configuration:
 my_programs.opencode = {
   enable = true;        # CLI version (v1.14.18)
   desktop.enable = true; # Desktop GUI (v1.14.18)
+  fixDbSymlink.enable = true;  # Fix database migration issue for nix flakes builds (recommended)
 };
 ```
 
@@ -136,6 +190,7 @@ When a new version is released:
 1. Check if upstream has fixed the issues:
    - [#23256](https://github.com/anomalyco/opencode/issues/23256) - prettier dependency
    - [#11755](https://github.com/anomalyco/opencode/issues/11755) - cargo outputHashes
+   - [#16885](https://github.com/anomalyco/opencode/issues/16885) - database migration on every run (nix flakes)
 
 2. Edit `flake.nix` to update the version tag:
    ```nix
@@ -186,7 +241,8 @@ Once upstream fixes the issues:
 
 1. **Remove the prettier patch**: When #23256 is fixed, remove the `postPatch` override for `opencode`
 2. **Remove cargoDeps override**: When #11755 is fixed, remove the `cargoDeps` override for `opencode-desktop`
-3. **Simplify to one overlay**: Just use `inputs.opencode.overlays.default` directly
+3. **Remove database symlink fix**: When #16885 is fixed upstream, remove the `fixDbSymlink` option and activation script
+4. **Simplify to one overlay**: Just use `inputs.opencode.overlays.default` directly
 
 ## References
 
@@ -194,4 +250,5 @@ Once upstream fixes the issues:
 - [OpenCode v1.14.18 Release](https://github.com/anomalyco/opencode/releases/tag/v1.14.18)
 - [Issue #23256 - prettier dependency](https://github.com/anomalyco/opencode/issues/23256)
 - [Issue #11755 - cargo outputHashes](https://github.com/anomalyco/opencode/issues/11755)
+- [Issue #16885 - database migration on every run](https://github.com/anomalyco/opencode/issues/16885)
 - [NixOS Overlays Documentation](https://nixos.wiki/wiki/Overlays)
