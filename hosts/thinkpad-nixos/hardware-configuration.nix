@@ -10,7 +10,13 @@
 
   boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "nvme" "usb_storage" "sd_mod" "sdhci_pci" ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
+  boot.kernelModules = [ "kvm-intel" "btusb" ];
+
+  # Enable Bluetooth support
+  # ThinkPad T14 Gen 2i uses Intel AX201/AX211 (btintel) or Realtek (btrtl)
+  # btusb is the generic driver that auto-loads the appropriate module
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
