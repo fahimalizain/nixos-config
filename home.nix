@@ -1,12 +1,9 @@
-{ config, pkgs, ... }:
+{ config, pkgs, hostname, ... }:
 
 {
-  home.username = "fahimalizain";
-  home.homeDirectory = "/home/fahimalizain";
-
-  # Packages for user
+  # Common packages for all hosts
   home.packages = with pkgs; [
-    kdePackages.kate
+    # Add shared packages here
   ];
 
   # Git configuration
@@ -23,16 +20,13 @@
   programs.bash = {
     enable = true;
     bashrcExtra = ''
-      export SSH_AUTH_SOCK="/home/fahimalizain/.1password/agent.sock"
-      # NixOS config location (override if repo is elsewhere)
-      export NIXOS_CONFIG="''${NIXOS_CONFIG:-$HOME/nixos-config}"
       # npm global packages (NixOS-compatible)
       export NPM_CONFIG_PREFIX="$HOME/.npm-global"
       export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
     '';
     shellAliases = {
-      nrs = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo nixos-rebuild switch --flake $NIXOS_CONFIG#thinkpad-nixos";
-      nrb = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo nixos-rebuild build --flake $NIXOS_CONFIG#thinkpad-nixos";
+      nrs = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo nixos-rebuild switch --flake $NIXOS_CONFIG#${hostname}";
+      nrb = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo nixos-rebuild build --flake $NIXOS_CONFIG#${hostname}";
     };
   };
 

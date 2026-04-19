@@ -21,14 +21,20 @@
     nixosConfigurations = {
       thinkpad-nixos = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
-        specialArgs = { inherit inputs; };
+        specialArgs = { inherit inputs; hostname = "thinkpad-nixos"; };
         modules = [
           ./hosts/thinkpad-nixos
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.fahimalizain = import ./home.nix;
+            home-manager.extraSpecialArgs = { hostname = "thinkpad-nixos"; };
+            home-manager.users.fahimalizain = { config, pkgs, hostname, ... }: {
+              imports = [
+                ./home.nix
+                ./hosts/thinkpad-nixos/home.nix
+              ];
+            };
           }
         ];
       };
