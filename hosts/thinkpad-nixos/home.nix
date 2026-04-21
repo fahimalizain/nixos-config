@@ -9,6 +9,8 @@
   # Common packages go in ../../home.nix
   home.packages = with pkgs; [
     kdePackages.kate
+    python312
+    uv
   ] ++ [
     pkgs-unstable.go  # Go from unstable channel (newer version)
   ];

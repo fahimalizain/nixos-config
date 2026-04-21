@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, pkgs-unstable, lib, ... }:
 
 with lib;
 
@@ -11,6 +11,6 @@ in
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [ pkgs.google-chrome ];
+    environment.systemPackages = [ pkgs-unstable.google-chrome ];
   };
 }
