@@ -57,6 +57,7 @@
     spotify
     slack
     nodejs_22
+    jq
   ];
 
   # Enable program modules
