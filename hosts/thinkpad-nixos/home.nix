@@ -13,6 +13,7 @@
     uv
   ] ++ [
     pkgs-unstable.go  # Go from unstable channel (newer version)
+    pkgs-unstable.agent-browser  # Headless browser automation CLI
   ];
 
   # Host-specific environment variables
