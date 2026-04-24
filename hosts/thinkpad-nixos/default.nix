@@ -75,6 +75,16 @@
   };
   programs.firefox.enable = true;
 
+  # nix-ld: Helps run dynamically linked binaries (not built for NixOS)
+  # by providing common shared libraries in standard locations (/lib, /lib64)
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      zlib               # Compression library (used by many Python packages)
+      stdenv.cc.cc.lib   # C++ standard library (libstdc++.so.6, needed by compiled Python wheels)
+    ];
+  };
+
   # Host-specific autostart applications
   my_services.autostart._1password = true;
 
