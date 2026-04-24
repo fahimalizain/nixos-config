@@ -20,5 +20,6 @@
   home.sessionVariables = {
     SSH_AUTH_SOCK = "/home/fahimalizain/.1password/agent.sock";
     NIXOS_CONFIG = "/home/fahimalizain/nixos-config";
+    AGENT_BROWSER_SKILLS_DIR = "/etc/profiles/per-user/fahimalizain/share/agent-browser/skills";
   };
 }
