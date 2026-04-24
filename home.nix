@@ -18,18 +18,20 @@
   # npm global packages directory (NixOS requires non-nix-store location)
   home.file.".npm-global/.keep".text = "";
 
-  # Bash configuration - migrated from .bashrc
-  programs.bash = {
-    enable = true;
-    bashrcExtra = ''
-      # npm global packages (NixOS-compatible)
-      export NPM_CONFIG_PREFIX="$HOME/.npm-global"
-      export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
-    '';
-    shellAliases = {
-      nrs = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo nixos-rebuild switch --flake $NIXOS_CONFIG#${hostname}";
-      nrb = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo nixos-rebuild build --flake $NIXOS_CONFIG#${hostname}";
-    };
+  # Enable bash shell (required for login)
+  programs.bash.enable = true;
+
+  # Shell configuration (generic - applies to all enabled shells)
+  home.sessionVariables = {
+    # npm global packages (NixOS-compatible)
+    NPM_CONFIG_PREFIX = "$HOME/.npm-global";
+  };
+
+  home.sessionPath = [ "$NPM_CONFIG_PREFIX/bin" ];
+
+  home.shellAliases = {
+    nrs = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo nixos-rebuild switch --flake $NIXOS_CONFIG#${hostname}";
+    nrb = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo nixos-rebuild build --flake $NIXOS_CONFIG#${hostname}";
   };
 
   # This value determines the Home Manager release
