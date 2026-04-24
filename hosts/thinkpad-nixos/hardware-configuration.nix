@@ -19,6 +19,13 @@
   hardware.bluetooth.powerOnBoot = true;
   boot.extraModulePackages = [ ];
 
+  # Power optimization for laptop battery life
+  powerManagement.powertop.enable = true;
+  environment.systemPackages = [ pkgs.powertop ];  # GUI and CLI tool
+
+  # Audio: HDA codec uses default power saving. If jack detection fails after
+  # unplugging and re-plugging headphones, run the 'refresh_audio' alias.
+
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/ce0fee98-77f6-471e-bb50-717a05b354d7";
       fsType = "ext4";

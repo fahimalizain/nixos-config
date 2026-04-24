@@ -29,4 +29,11 @@
     # still need LD_LIBRARY_PATH to find C++ runtime libraries on NixOS.
     LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
   };
+
+  # Host-specific aliases for thinkpad-nixos
+  home.shellAliases = {
+    # Refresh audio when jack detection fails after unplug/replug
+    # This briefly wakes the codec from power-save and restarts PipeWire
+    refresh_audio = "(timeout 1 speaker-test -t sine -f 1 -c 1 2>/dev/null || true) && systemctl restart --user pipewire pipewire-pulse && sleep 1 && echo 'Audio refreshed'";
+  };
 }

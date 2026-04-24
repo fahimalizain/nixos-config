@@ -53,31 +53,36 @@ nixosConfigurations.new-hostname = nixpkgs.lib.nixosSystem {
 };
 ```
 
-### Rebuilding the System
+## Important Rules
+
+1. **NEVER run `nixos-rebuild` commands** - Do not run `nrs`, `nrb`, `nixos-rebuild switch`, `nixos-rebuild build`, or any rebuild commands. Only make the file changes; let the user handle rebuilding. ⚠️ This is critical - running rebuild commands can break the user's system.
+2. **Always use `--flake .#hostname`** when rebuilding (user runs this), not just `nixos-rebuild switch`
+3. **Git track all files** - Nix flakes only see files tracked by git
+4. **Don't edit `/etc/nixos/` directly** - It's symlinked to `~/nixos-config`
+5. **Home Manager is integrated** - User configs rebuild automatically with system
+
+### Rebuilding (User-Only Operation)
+
+The user runs these commands after you make changes:
+
 ```bash
 cd ~/nixos-config
-sudo nixos-rebuild switch --flake .#thinkpad-nixos
+sudo nixos-rebuild switch --flake .#thinkpad-nixos  # Rebuild and activate
+# OR
+sudo nixos-rebuild build --flake .#thinkpad-nixos   # Build only, test for errors
 ```
 
-**Aliases** (defined in `home.nix`):
-- `nrs` - `sudo nixos-rebuild switch --flake .#thinkpad-nixos` (rebuild and activate)
-- `nrb` - `sudo nixos-rebuild build --flake .#thinkpad-nixos` (build only, test for errors)
-
-## Important Notes
-
-1. **Always use `--flake .#hostname`** when rebuilding, not just `nixos-rebuild switch`
-2. **Git track all files** - Nix flakes only see files tracked by git
-3. **Don't edit `/etc/nixos/` directly** - It's symlinked to `~/nixos-config`
-4. **Home Manager is integrated** - User configs rebuild automatically with system
-5. **Test before committing** - Run `nixos-rebuild build` first to check for errors
-6. **NEVER run `nixos-rebuild` commands** - Do not run `nrs`, `nrb`, `nixos-rebuild switch`, `nixos-rebuild build`, or any rebuild commands unless the user explicitly asks you to. Only make the file changes; let the user handle rebuilding.
+**User aliases** (defined in `home.nix`):
+- `nrs` - `sudo nixos-rebuild switch --flake .#thinkpad-nixos`
+- `nrb` - `sudo nixos-rebuild build --flake .#thinkpad-nixos`
 
 ## Before Committing Changes
 
-1. Test the configuration builds: `sudo nixos-rebuild build --flake .#thinkpad-nixos`
-2. Check git status: `git status`
-3. Review changes: `git diff`
-4. Commit with semantic message (see below)
+1. Check git status: `git status`
+2. Review changes: `git diff`
+3. Commit with semantic message (see below)
+
+**Note:** Do not run `nixos-rebuild build` yourself. The user will test the configuration after you make changes.
 
 ## Commit Message Convention
 
