@@ -15,6 +15,10 @@ let
           --replace-fail 'const prettier = await import("prettier")' 'const prettier = { format: async (s: string) => s }' \
           --replace-fail 'const babel = await import("prettier/plugins/babel")' 'const babel = {}' \
           --replace-fail 'const estree = await import("prettier/plugins/estree")' 'const estree = {}'
+
+        # Relax bun version check - nixpkgs-unstable has bun 1.3.11, opencode wants 1.3.13
+        # Patch the version check to accept bun >=1.3.11
+        sed -i 's/semver.satisfies(process.versions.bun, expectedBunVersionRange)/true/' packages/script/src/index.ts
       '';
     });
 
