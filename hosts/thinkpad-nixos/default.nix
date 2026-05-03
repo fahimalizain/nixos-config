@@ -49,6 +49,9 @@
     isNormalUser = true;
     description = "Fahim Ali Zain";
     extraGroups = [ "networkmanager" "wheel" "docker" ];
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJMTFvMRPOzg6Y8LAdsAY2v8V5aVk6rYon6TzYJM9h2S op/ThinkpadNixOS"
+    ];
   };
 
   # System packages
@@ -98,6 +101,16 @@
     warp.enable = true;                      # Cloudflare One Client (WARP)
     tunnel.enable = true;                    # Cloudflare Tunnel (cloudflared)
     zerotrust.fahimalizain.enable = true;    # Zero Trust hosts (fahimalizain org)
+  };
+
+  # SSH server
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      PermitRootLogin = "prohibit-password";
+    };
+    openFirewall = true;
   };
 
   # X11 and Desktop Environment
