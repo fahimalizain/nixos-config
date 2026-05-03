@@ -26,20 +26,36 @@ in
 {
   options.my_services.autostart = {
     _1password = mkEnableOption "1Password GUI autostart on login";
+    rustdesk = mkEnableOption "RustDesk remote desktop autostart on login";
   };
 
-  config = mkIf cfg._1password {
+  config = mkMerge [
+    (mkIf cfg._1password {
     # Creates ~/.config/autostart/1password.desktop
     # Runs 1password --silent (starts minimized to system tray)
-    home-manager.users.fahimalizain.xdg.configFile."autostart/1password.desktop".text = ''
-      [Desktop Entry]
-      Name=1Password
-      Exec=1password --silent
-      Icon=1password
-      Type=Application
-      Categories=Security;System;
-      Comment=Password manager
-      X-GNOME-Autostart-enabled=true
-    '';
-  };
+      home-manager.users.fahimalizain.xdg.configFile."autostart/1password.desktop".text = ''
+        [Desktop Entry]
+        Name=1Password
+        Exec=1password --silent
+        Icon=1password
+        Type=Application
+        Categories=Security;System;
+        Comment=Password manager
+        X-GNOME-Autostart-enabled=true
+      '';
+    })
+
+    (mkIf cfg.rustdesk {
+      home-manager.users.fahimalizain.xdg.configFile."autostart/rustdesk.desktop".text = ''
+        [Desktop Entry]
+        Name=RustDesk
+        Exec=rustdesk
+        Icon=rustdesk
+        Type=Application
+        Categories=Network;RemoteAccess;
+        Comment=RustDesk remote desktop
+        X-GNOME-Autostart-enabled=true
+      '';
+    })
+  ];
 }

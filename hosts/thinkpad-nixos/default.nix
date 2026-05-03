@@ -87,6 +87,7 @@
 
   # Host-specific autostart applications
   my_services.autostart._1password = true;
+  my_services.autostart.rustdesk = true;
 
   # Enable service modules
   my_services.tailscale = {
@@ -106,6 +107,14 @@
     variant = "";
   };
   services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.settings = {
+    Users.RememberLastSession = false;
+  };
+  services.displayManager.autoLogin = {
+    enable = true;
+    user = "fahimalizain";
+  };
+  services.displayManager.defaultSession = "plasmax11";
   services.desktopManager.plasma6.enable = true;
 
   # Printing
@@ -143,7 +152,7 @@
   virtualisation.docker.enable = true;
 
   # Fingerprint sensor (Synaptics Prometheus MIS)
-  services.fprintd.enable = true;
+  services.fprintd.enable = false;
 
   # Allow passwordless nrb (nixos-rebuild build only, not switch)
   security.sudo.extraRules = [
