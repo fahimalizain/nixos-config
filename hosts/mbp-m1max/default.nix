@@ -37,6 +37,8 @@
       "visual-studio-code"
       "slack"
       "whatsapp"
+      "spotify"
+      "cloudflare-warp"
     ];
     onActivation = {
       autoUpdate = true;
