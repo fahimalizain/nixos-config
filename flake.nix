@@ -11,13 +11,23 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nix-darwin = {
+      url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nix-darwin-unstable = {
+      url = "github:nix-darwin/nix-darwin/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     opencode = {
       url = "github:anomalyco/opencode/v1.14.24";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, nixos-unstable, home-manager, opencode, ... }@inputs: let
+  outputs = { self, nixpkgs, nixpkgs-unstable, nixos-unstable, home-manager, nix-darwin, nix-darwin-unstable, opencode, ... }@inputs: let
     # TODO: Remove `inherit system` when nixpkgs-unstable fixes stdenv.hostPlatform.system deprecation
     mkPkgsUnstable = system: import nixpkgs-unstable {
       inherit system;
@@ -46,6 +56,35 @@
               imports = [
                 ./home.nix
                 ./hosts/thinkpad-nixos/home.nix
+              ];
+            };
+          }
+        ];
+      };
+    };
+
+    darwinConfigurations = {
+      "mbp-m1max" = nix-darwin.lib.darwinSystem {
+        system = "aarch64-darwin";
+        specialArgs = {
+          inherit inputs;
+          pkgs-unstable = mkPkgsUnstable "aarch64-darwin";
+          hostname = "mbp-m1max";
+        };
+        modules = [
+          ./hosts/mbp-m1max
+          home-manager.darwinModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = {
+              pkgs-unstable = mkPkgsUnstable "aarch64-darwin";
+              hostname = "mbp-m1max";
+            };
+            home-manager.users.fahimalizain = { config, pkgs, pkgs-unstable, hostname, ... }: {
+              imports = [
+                ./home.nix
+                ./hosts/mbp-m1max/home.nix
               ];
             };
           }

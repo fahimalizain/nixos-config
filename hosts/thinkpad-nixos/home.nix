@@ -1,4 +1,4 @@
-{ config, pkgs, pkgs-unstable, ... }:
+{ config, pkgs, pkgs-unstable, hostname, ... }:
 
 {
   # User account settings (host-specific)
@@ -20,7 +20,6 @@
   # Host-specific environment variables
   home.sessionVariables = {
     SSH_AUTH_SOCK = "/home/fahimalizain/.1password/agent.sock";
-    NIXOS_CONFIG = "/home/fahimalizain/nixos-config";
     AGENT_BROWSER_SKILLS_DIR = "/etc/profiles/per-user/fahimalizain/share/agent-browser/skills";
 
     # Expose libstdc++.so.6 to dynamically-linked binaries loaded via dlopen
