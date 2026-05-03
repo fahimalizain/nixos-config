@@ -15,6 +15,16 @@ in
       name = "Fahim Ali Zain";
       email = "fahimalizain@gmail.com";
     };
+    ignores = [
+      ".envrc"
+    ];
+  };
+
+  # direnv (automatic shell env loading)
+  programs.direnv = {
+    enable = true;
+    enableBashIntegration = !isDarwin;
+    enableZshIntegration = isDarwin;
   };
 
   # npm global packages directory (NixOS requires non-nix-store location)
