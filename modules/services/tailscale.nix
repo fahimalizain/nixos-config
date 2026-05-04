@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs-unstable, lib, ... }:
 
 with lib;
 
@@ -15,11 +15,11 @@ in
     (mkIf cfg.enable {
       services.tailscale = {
         enable = true;
-        package = pkgs.tailscale;
+        package = pkgs-unstable.tailscale;
       };
     })
     (mkIf (cfg.enable && cfg.trayscale.enable) {
-      environment.systemPackages = [ pkgs.trayscale ];
+      environment.systemPackages = [ pkgs-unstable.trayscale ];
     })
   ];
 }
