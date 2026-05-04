@@ -21,8 +21,9 @@ in
   };
 
   # direnv (automatic shell env loading)
+  # disable for darwin
   programs.direnv = {
-    enable = true;
+    enable = !isDarwin;
     enableBashIntegration = !isDarwin;
     enableZshIntegration = isDarwin;
   };
