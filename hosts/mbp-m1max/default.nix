@@ -62,6 +62,7 @@
   environment.systemPackages = with pkgs; [
     stats
     python312
+    poetry
   ];
 
   system.stateVersion = 5;
