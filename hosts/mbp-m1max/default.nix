@@ -50,11 +50,16 @@
 
   nixpkgs.overlays = [
     (final: prev: {
-      # direnv 2.37.1 fish tests crash on macOS with Killed: 9 (SIGKILL).
-      # Likely a fish shell compatibility issue with nix-darwin.
-      # Only run bash and stdlib tests; skip fish/elvish/tcsh/zsh/pwsh/mx.
+      # direnv shell integration tests crash on macOS with Killed: 9 (SIGKILL).
+      # Tracked upstream: https://github.com/NixOS/nixpkgs/issues/507531
+      # Caused by libarchive 3.8.4 -> 3.8.6 update breaking fish/zsh tests.
+      # Only run Go unit tests; skip all shell-specific tests.
       direnv = prev.direnv.overrideAttrs (old: {
-        checkTarget = "test-bash test-zsh test-stdlib";
+        checkPhase = ''
+          runHook preCheck
+          make -j$NIX_BUILD_CORES test-go
+          runHook postCheck
+        '';
       });
     })
   ];

@@ -23,7 +23,7 @@ in
   # direnv (automatic shell env loading)
   # disable for darwin
   programs.direnv = {
-    enable = !isDarwin;
+    enable = true;
     enableBashIntegration = !isDarwin;
     enableZshIntegration = isDarwin;
   };
