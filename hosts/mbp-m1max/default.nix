@@ -68,6 +68,7 @@
     stats
     python312
     poetry
+    uv
   ];
 
   system.stateVersion = 5;
