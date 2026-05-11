@@ -39,6 +39,7 @@
       "whatsapp"
       "spotify"
       "cloudflare-warp"
+      "docker"
     ];
     onActivation = {
       autoUpdate = true;
