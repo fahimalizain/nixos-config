@@ -35,4 +35,9 @@
     # This briefly wakes the codec from power-save and restarts PipeWire
     refresh_audio = "(timeout 1 speaker-test -t sine -f 1 -c 1 2>/dev/null || true) && systemctl restart --user pipewire pipewire-pulse && sleep 1 && echo 'Audio refreshed'";
   };
+
+  # Import user systemd services
+  imports = [
+    ../../modules/services/whatsapp-personal.nix
+  ];
 }

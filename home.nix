@@ -46,8 +46,8 @@ in
   home.shellAliases = let
     rebuild = if isDarwin then "darwin-rebuild" else "nixos-rebuild";
   in {
-    nrs = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo ${rebuild} switch --flake $NIXOS_CONFIG#${hostname}";
-    nrb = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo ${rebuild} build --flake $NIXOS_CONFIG#${hostname}";
+    nrs = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo SSH_AUTH_SOCK=$SSH_AUTH_SOCK ${rebuild} switch --flake $NIXOS_CONFIG#${hostname}";
+    nrb = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo SSH_AUTH_SOCK=$SSH_AUTH_SOCK ${rebuild} build --flake $NIXOS_CONFIG#${hostname}";
   } // lib.optionalAttrs isDarwin {
     brew-upgrade = "brew update && brew upgrade";
   };
