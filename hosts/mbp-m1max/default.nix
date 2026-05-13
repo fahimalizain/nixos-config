@@ -26,9 +26,9 @@
       "opencode"
     ];
     casks = [
-      "tailscale"
+      "tailscale-app"
       "lulu"
-      "jordanbaird-ice"
+      "jordanbaird-ice@beta"
       "rustdesk"
       "1password"
       "1password-cli"
@@ -39,9 +39,10 @@
       "whatsapp"
       "spotify"
       "cloudflare-warp"
-      "docker"
+      "docker-desktop"
       "shottr"
       "stats"
+      "ghostty"
     ];
     onActivation = {
       autoUpdate = true;
