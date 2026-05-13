@@ -43,6 +43,7 @@
       "shottr"
       "stats"
       "ghostty"
+      "openscad@snapshot"
     ];
     onActivation = {
       autoUpdate = true;
