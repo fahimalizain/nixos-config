@@ -40,6 +40,8 @@
       "spotify"
       "cloudflare-warp"
       "docker"
+      "shottr"
+      "stats"
     ];
     onActivation = {
       autoUpdate = true;
@@ -66,7 +68,6 @@
   ];
 
   environment.systemPackages = with pkgs; [
-    stats
     python312
     poetry
     uv
