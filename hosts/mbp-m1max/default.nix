@@ -75,5 +75,10 @@
     uv
   ];
 
+  system.defaults.dock = {
+    # Top-left hot corner -> Mission Control
+    wvous-tl-corner = 2;
+  };
+
   system.stateVersion = 5;
 }
