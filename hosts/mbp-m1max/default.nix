@@ -44,6 +44,7 @@
       "stats"
       "ghostty"
       "openscad@snapshot"
+      "utm"
     ];
     onActivation = {
       autoUpdate = true;
