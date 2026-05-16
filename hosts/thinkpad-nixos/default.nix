@@ -8,6 +8,7 @@
     ../../modules/programs/google-chrome.nix
     ../../modules/programs/vscode.nix
     ../../modules/programs/opencode.nix
+    ../../modules/programs/ghostty.nix
     ../../modules/services/tailscale.nix
     ../../modules/services/cloudflare.nix
     ./autostart.nix
@@ -71,6 +72,7 @@
   };
   my_programs.google-chrome.enable = true;
   my_programs.vscode.enable = true;
+  my_programs.ghostty.enable = true;
   my_programs.opencode = {
     enable = true;        # CLI version
     desktop.enable = true; # Desktop GUI version
