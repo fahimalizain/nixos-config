@@ -39,5 +39,6 @@
   # Import user systemd services
   imports = [
     ../../modules/services/whatsapp-personal.nix
+    ../../modules/services/faaz-solar.nix
   ];
 }
