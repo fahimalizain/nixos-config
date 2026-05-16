@@ -4,15 +4,15 @@ This document explains how OpenCode is integrated into the NixOS configuration, 
 
 ## Overview
 
-OpenCode (CLI and Desktop) are installed from the upstream flake (v1.14.18), isolated from stable nixpkgs to avoid dependency conflicts.
+OpenCode (CLI and Desktop) are installed from the upstream flake (v1.15.3), isolated from stable nixpkgs to avoid dependency conflicts.
 
-**Current Status**: Build requires workarounds for upstream issues #23256, #11755, and #16885.
+**Current Status**: Build requires workarounds for upstream issues #23256 and #16885.
 
 ## Known Upstream Issues
 
 ### Issue #23256 - Missing prettier dependency (CLI build)
 
-**Problem**: v1.14.18 introduced dynamic imports of `prettier` in `generate.ts`, but `prettier` is not declared in `package.json`. This breaks the Nix build:
+**Problem**: v1.14.18+ introduced dynamic imports of `prettier` in `generate.ts`, but `prettier` is not declared in `package.json`. This breaks the Nix build:
 
 ```
 error: Could not resolve: "prettier". Maybe you need to "bun install"?
@@ -20,20 +20,9 @@ error: Could not resolve: "prettier". Maybe you need to "bun install"?
 
 **Workaround**: Patch `generate.ts` during `postPatch` to stub out the prettier imports.
 
-### Issue #11755 - Missing cargo outputHashes (Desktop build)
-
-**Problem**: The desktop package depends on git versions of `specta` and `tauri-specta`, but the flake doesn't provide the required `outputHashes` for `importCargoLock`.
-
-**Error**:
-```
-error: No hash was found while vendoring the git dependency specta-2.0.0-rc.22.
-```
-
-**Workaround**: Override `cargoDeps` with the correct `outputHashes` for the git dependencies.
-
 ### Issue #16885 - Database migration on every run (Nix flakes builds)
 
-**Problem**: When opencode is built locally via Nix flakes, it uses a different build path on each rebuild (e.g., `/nix/store/...-opencode-1.14.18`). This causes opencode to think it's a "new version" and triggers database migration on every run, which is slow and unnecessary.
+**Problem**: When opencode is built locally via Nix flakes, it uses a different build path on each rebuild (e.g., `/nix/store/...-opencode-1.15.3`). This causes opencode to think it's a "new version" and triggers database migration on every run, which is slow and unnecessary.
 
 **Symptom**:
 ```
@@ -51,6 +40,16 @@ my_programs.opencode = {
   fixDbSymlink.enable = true;  # Enable database symlink fix
 };
 ```
+
+### Bun version check (v1.15.x+)
+
+**Problem**: Starting with v1.15.x, the build requires bun ^1.3.13, but nixpkgs-unstable currently provides bun 1.3.11. This causes the build to fail:
+
+```
+error: This script requires bun@^1.3.13, but you are using bun@1.3.11
+```
+
+**Workaround**: Patch the bun version check in `packages/script/src/index.ts` to accept any bun version during the build.
 
 ## Implementation
 
@@ -74,22 +73,24 @@ let
           --replace-fail 'const prettier = await import("prettier")' 'const prettier = { format: async (s: string) => s }' \
           --replace-fail 'const babel = await import("prettier/plugins/babel")' 'const babel = {}' \
           --replace-fail 'const estree = await import("prettier/plugins/estree")' 'const estree = {}'
+
+        # Relax bun version check - nixpkgs-unstable has bun 1.3.11, opencode wants 1.3.13
+        # Patch the version check to accept bun >=1.3.11
+        sed -i 's/semver.satisfies(process.versions.bun, expectedBunVersionRange)/true/' packages/script/src/index.ts
       '';
     });
 
-    # Rebuild opencode-desktop with patched opencode and fixed cargo hashes
-    # https://github.com/anomalyco/opencode/issues/11755
+    # Rebuild opencode-desktop with patched opencode and bun version fix
+    # Note: v1.15.x+ uses Electron instead of Tauri, so no cargoDeps needed
     opencode-desktop = (final.callPackage (inputs.opencode + "/nix/desktop.nix") {
       opencode = final.opencode;  # Use the patched opencode from final
     }).overrideAttrs (old: {
-      cargoDeps = final.rustPlatform.importCargoLock {
-        lockFile = inputs.opencode + "/packages/desktop/src-tauri/Cargo.lock";
-        outputHashes = {
-          "specta-2.0.0-rc.22" = "sha256-YsyOAnXELLKzhNlJ35dHA6KGbs0wTAX/nlQoW8wWyJQ=";
-          "tauri-2.9.5" = "sha256-dv5E/+A49ZBvnUQUkCGGJ21iHrVvrhHKNcpUctivJ8M=";
-          "tauri-specta-2.0.0-rc.21" = "sha256-n2VJ+B1nVrh6zQoZyfMoctqP+Csh7eVHRXwUQuiQjaQ=";
-        };
-      };
+      postPatch = (old.postPatch or "") + ''
+        # Relax bun version check - nixpkgs-unstable has bun 1.3.11, opencode wants 1.3.13
+        # The prebuild script is run via bun from packages/desktop, which calls packages/script
+        # Find and patch all occurrences of the version check
+        find . -name "index.ts" -path "*/script/src/*" -exec sed -i 's/semver.satisfies(process.versions.bun, expectedBunVersionRange)/true/' {} \;
+      '';
     });
   };
 
@@ -171,14 +172,22 @@ This ordering is critical - patches must come AFTER the upstream overlay so `pre
 
 `opencode-desktop` copies the `opencode` CLI as a sidecar binary during its build. If we just patched `opencode`, the desktop build would still use the unpatched version as its dependency. By using `final.callPackage` with `opencode = final.opencode`, we ensure the desktop is built with the patched CLI.
 
+### Desktop Framework Change (v1.15.x)
+
+Starting with v1.15.x, the desktop application was rewritten from **Tauri** (Rust-based) to **Electron** (Node.js-based). This means:
+
+- No more `cargoDeps` or Cargo.lock management needed
+- The desktop build now uses `electron-builder` instead of `cargo build`
+- The patch strategy changed from Rust dependencies to Node.js/bun version checks
+
 ## Usage
 
 Enable in your host configuration:
 
 ```nix
 my_programs.opencode = {
-  enable = true;        # CLI version (v1.14.18)
-  desktop.enable = true; # Desktop GUI (v1.14.18)
+  enable = true;        # CLI version (v1.15.3)
+  desktop.enable = true; # Desktop GUI (v1.15.3, Electron-based)
   fixDbSymlink.enable = true;  # Fix database migration issue for nix flakes builds (recommended)
 };
 ```
@@ -189,20 +198,21 @@ When a new version is released:
 
 1. Check if upstream has fixed the issues:
    - [#23256](https://github.com/anomalyco/opencode/issues/23256) - prettier dependency
-   - [#11755](https://github.com/anomalyco/opencode/issues/11755) - cargo outputHashes
    - [#16885](https://github.com/anomalyco/opencode/issues/16885) - database migration on every run (nix flakes)
 
-2. Edit `flake.nix` to update the version tag:
+2. Check for new build issues (e.g., bun version requirements, Electron changes)
+
+3. Edit `flake.nix` to update the version tag:
    ```nix
-   opencode.url = "github:anomalyco/opencode/v1.15.0";
+   opencode.url = "github:anomalyco/opencode/v1.16.0";
    ```
 
-3. Update the flake.lock:
+4. Update the flake.lock:
    ```bash
    nix flake update opencode
    ```
 
-4. Test the build:
+5. Test the build:
    ```bash
    nrb  # Build only
    nrs  # Build and activate
@@ -222,14 +232,14 @@ cat /nix/store/...-source/packages/opencode/src/cli/cmd/generate.ts | head -40
 
 The pattern must match exactly, including quotes and spacing.
 
-### Hash mismatch in cargoDeps
+### Bun version check failure
 
 If you see:
 ```
-error: hash mismatch in fixed-output derivation '...-specta-...'
+error: This script requires bun@^1.3.13, but you are using bun@1.3.11
 ```
 
-The `outputHashes` need updating. Run the build to get the correct hash from the error message and update it in the module.
+The bun version check patch isn't working. Verify the `sed` pattern matches the source code. You may need to check if the line format changed in newer versions.
 
 ### "undefined variable 'inputs'"
 
@@ -240,15 +250,14 @@ Make sure `specialArgs = { inherit inputs; }` is set in your `nixosSystem` confi
 Once upstream fixes the issues:
 
 1. **Remove the prettier patch**: When #23256 is fixed, remove the `postPatch` override for `opencode`
-2. **Remove cargoDeps override**: When #11755 is fixed, remove the `cargoDeps` override for `opencode-desktop`
+2. **Remove bun version patch**: When upstream either relaxes the bun version requirement or nixpkgs catches up
 3. **Remove database symlink fix**: When #16885 is fixed upstream, remove the `fixDbSymlink` option and activation script
 4. **Simplify to one overlay**: Just use `inputs.opencode.overlays.default` directly
 
 ## References
 
 - [OpenCode Repository](https://github.com/anomalyco/opencode)
-- [OpenCode v1.14.18 Release](https://github.com/anomalyco/opencode/releases/tag/v1.14.18)
+- [OpenCode v1.15.3 Release](https://github.com/anomalyco/opencode/releases/tag/v1.15.3)
 - [Issue #23256 - prettier dependency](https://github.com/anomalyco/opencode/issues/23256)
-- [Issue #11755 - cargo outputHashes](https://github.com/anomalyco/opencode/issues/11755)
 - [Issue #16885 - database migration on every run](https://github.com/anomalyco/opencode/issues/16885)
 - [NixOS Overlays Documentation](https://nixos.wiki/wiki/Overlays)

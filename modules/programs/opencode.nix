@@ -22,19 +22,17 @@ let
       '';
     });
 
-    # Rebuild opencode-desktop with patched opencode and fixed cargo hashes
-    # https://github.com/anomalyco/opencode/issues/11755
+    # Rebuild opencode-desktop with patched opencode and bun version fix
+    # Note: v1.15.x+ uses Electron instead of Tauri, so no cargoDeps needed
     opencode-desktop = (final.callPackage (inputs.opencode + "/nix/desktop.nix") {
       opencode = final.opencode;  # Use the patched opencode from final
     }).overrideAttrs (old: {
-      cargoDeps = final.rustPlatform.importCargoLock {
-        lockFile = inputs.opencode + "/packages/desktop/src-tauri/Cargo.lock";
-        outputHashes = {
-          "specta-2.0.0-rc.22" = "sha256-YsyOAnXELLKzhNlJ35dHA6KGbs0wTAX/nlQoW8wWyJQ=";
-          "tauri-2.9.5" = "sha256-dv5E/+A49ZBvnUQUkCGGJ21iHrVvrhHKNcpUctivJ8M=";
-          "tauri-specta-2.0.0-rc.21" = "sha256-n2VJ+B1nVrh6zQoZyfMoctqP+Csh7eVHRXwUQuiQjaQ=";
-        };
-      };
+      postPatch = (old.postPatch or "") + ''
+        # Relax bun version check - nixpkgs-unstable has bun 1.3.11, opencode wants 1.3.13
+        # The prebuild script is run via bun from packages/desktop, which calls packages/script
+        # Find and patch all occurrences of the version check
+        find . -name "index.ts" -path "*/script/src/*" -exec sed -i 's/semver.satisfies(process.versions.bun, expectedBunVersionRange)/true/' {} \;
+      '';
     });
   };
 
