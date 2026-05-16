@@ -181,8 +181,10 @@
       users = [ "fahimalizain" ];
       commands = [
         {
-          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild build";
-          options = [ "NOPASSWD" ];
+          # Allow "nixos-rebuild build" with any arguments (for nrb alias)
+          # Using /run/current-system/sw/bin path which is what sudo resolves
+          command = "/run/current-system/sw/bin/nixos-rebuild build";
+          options = [ "NOPASSWD" "SETENV" ];
         }
       ];
     }
