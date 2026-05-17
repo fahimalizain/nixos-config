@@ -145,11 +145,26 @@
     pulse.enable = true;
   };
 
-  # Never auto-sleep (laptop used as desktop)
+  # Power & Sleep management (laptop used as a desktop replacement)
+  # Never auto-sleep — this machine is always plugged in and accessed remotely
   systemd.targets.sleep.enable = false;
   systemd.targets.suspend.enable = false;
   systemd.targets.hibernate.enable = false;
   systemd.targets.hybrid-sleep.enable = false;
+
+  # Clamshell / closed-lid boot: force ACPI lid state to "open" during boot so
+  # the i915 driver does not forcibly disable the internal eDP panel when the
+  # lid is closed on startup. Required for remote access (RustDesk) after reboot.
+  boot.kernelParams = [
+    "button.lid_init_state=open"
+  ];
+
+  # Clamshell lid behavior: suspend on battery, ignore on AC / docked
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend";
+    HandleLidSwitchExternalPower = "ignore";
+    HandleLidSwitchDocked = "ignore";
+  };
 
   # TrackPoint support (Lenovo ThinkPad)
   hardware.trackpoint.enable = true;
