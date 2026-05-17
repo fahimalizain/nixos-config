@@ -70,6 +70,7 @@
           inherit inputs;
           pkgs-unstable = mkPkgsUnstable "aarch64-darwin";
           hostname = "mbp-m1max";
+          isDarwin = true;
         };
         modules = [
           ./hosts/mbp-m1max
