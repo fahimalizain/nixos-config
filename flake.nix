@@ -41,6 +41,7 @@
           inherit inputs;
           pkgs-unstable = mkPkgsUnstable "x86_64-linux";
           hostname = "thinkpad-nixos";
+          operatingSystem = "nixos";
         };
         modules = [
           ./hosts/thinkpad-nixos
@@ -70,7 +71,7 @@
           inherit inputs;
           pkgs-unstable = mkPkgsUnstable "aarch64-darwin";
           hostname = "mbp-m1max";
-          isDarwin = true;
+          operatingSystem = "darwin";
         };
         modules = [
           ./hosts/mbp-m1max

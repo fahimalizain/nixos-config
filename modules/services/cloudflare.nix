@@ -1,4 +1,4 @@
-{ config, pkgs, lib, inputs, isDarwin ? false, ... }:
+{ config, pkgs, lib, inputs, operatingSystem ? "generic-linux", ... }:
 
 with lib;
 
@@ -30,7 +30,7 @@ in
     };
   };
 
-  config = mkMerge ([] ++ optionals (!isDarwin) [
+  config = mkMerge ([] ++ optionals (operatingSystem == "nixos") [
     (mkIf cfg.warp.enable {
       # Enable the cloudflare-warp service (module already in nixos-25.11)
       # but override the package to use nixos-unstable version
@@ -45,7 +45,7 @@ in
     })
     (mkIf cfg.zerotrust.fahimalizain.enable (
       # Cloudflare Zero Trust virtual network hosts (fahimalizain organization)
-      if isDarwin then {
+      if operatingSystem == "darwin" then {
         # nix-darwin doesn't have networking.hosts; append via activation script.
         # The activation script template only runs a hardcoded set of named scripts,
         # so we must use `extraActivation` (designed for user customization).
