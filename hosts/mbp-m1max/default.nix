@@ -43,6 +43,7 @@
       "docker-desktop"
       "shottr"
       "stats"
+      "keepingyouawake"
       "ghostty"
       "openscad@snapshot"
       "utm"
