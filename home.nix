@@ -5,8 +5,21 @@ in
 {
   # Common packages for all hosts
   home.packages = with pkgs; [
-    # Add shared packages here
-  ];
+    procps       # watch, ps, top
+
+    # Networking / LAN tools (cross-platform)
+    arp-scan     # ARP-based LAN host discovery
+    nmap         # network discovery and port scanning
+    tcpdump      # packet analyzer
+    mtr          # dynamic traceroute + ping combo
+    dnsutils     # dig, nslookup
+  ]
+  # Linux-only networking tools
+  ++ lib.optionals (!isDarwin) (with pkgs; [
+    traceroute   # trace network paths
+    ethtool      # NIC inspection and configuration
+    iproute2     # ip, ss
+  ]);
 
   # Git configuration
   programs.git = {

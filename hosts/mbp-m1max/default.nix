@@ -37,6 +37,7 @@
       "opencode-desktop"
       "visual-studio-code"
       "slack"
+      "discord"
       "whatsapp"
       "spotify"
       "cloudflare-warp"
@@ -76,6 +77,7 @@
     python312
     poetry
     uv
+    gh
   ];
 
   system.defaults.dock = {
