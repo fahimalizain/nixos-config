@@ -40,6 +40,7 @@
       "discord"
       "whatsapp"
       "spotify"
+      "telegram-desktop"
       "cloudflare-warp"
       "docker-desktop"
       "shottr"
