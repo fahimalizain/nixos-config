@@ -49,7 +49,7 @@
   users.users.fahimalizain = {
     isNormalUser = true;
     description = "Fahim Ali Zain";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" ];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJMTFvMRPOzg6Y8LAdsAY2v8V5aVk6rYon6TzYJM9h2S op/ThinkpadNixOS"
     ];
@@ -58,6 +58,7 @@
   # System packages
   environment.systemPackages = with pkgs; [
     git
+    rsync
     spotify
     slack
     nodejs_22
@@ -186,6 +187,10 @@
 
   # Docker
   virtualisation.docker.enable = true;
+
+  # Virtual Machine Manager (libvirt/QEMU)
+  virtualisation.libvirtd.enable = true;
+  programs.virt-manager.enable = true;
 
   # Fingerprint sensor (Synaptics Prometheus MIS)
   services.fprintd.enable = false;
