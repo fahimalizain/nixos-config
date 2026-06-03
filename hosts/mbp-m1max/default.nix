@@ -49,6 +49,7 @@
       "ghostty"
       "openscad@snapshot"
       "utm"
+      "antigravity"
     ];
     onActivation = {
       autoUpdate = true;
