@@ -86,6 +86,8 @@
   system.defaults.dock = {
     # Top-left hot corner -> Mission Control
     wvous-tl-corner = 2;
+    # Top-right hot corner -> Mission Control
+    wvous-tr-corner = 2;
   };
 
   system.stateVersion = 5;
