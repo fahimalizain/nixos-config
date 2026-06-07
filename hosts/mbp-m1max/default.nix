@@ -41,6 +41,7 @@
       "whatsapp"
       "spotify"
       "telegram-desktop"
+      "obsidian"
       "cloudflare-warp"
       "docker-desktop"
       "shottr"
