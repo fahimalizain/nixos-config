@@ -23,10 +23,14 @@
 
   homebrew = {
     enable = true;
+    taps = [
+      "esengine/reasonix"
+    ];
     brews = [
       "opencode"
     ];
     casks = [
+      "esengine/reasonix/reasonix"
       "tailscale-app"
       "lulu"
       "jordanbaird-ice@beta"
