@@ -51,6 +51,7 @@
       "openscad@snapshot"
       "utm"
       "antigravity"
+      "kicad"
     ];
     onActivation = {
       autoUpdate = true;
