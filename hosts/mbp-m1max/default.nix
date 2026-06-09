@@ -28,6 +28,7 @@
     ];
     brews = [
       "opencode"
+      "node@24"
     ];
     casks = [
       "esengine/reasonix/reasonix"
@@ -88,6 +89,10 @@
     uv
     gh
   ];
+
+  # Ensure node@24 is found before the default Homebrew node (v26, installed as a dependency of opencode).
+  # This affects GUI apps like VSCode.
+  environment.systemPath = [ "/opt/homebrew/opt/node@24/bin" ];
 
   system.defaults.dock = {
     # Top-left hot corner -> Mission Control
