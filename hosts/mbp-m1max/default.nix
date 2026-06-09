@@ -57,6 +57,7 @@
       "utm"
       "antigravity"
       "kicad"
+      "linearmouse"
     ];
     onActivation = {
       autoUpdate = true;
