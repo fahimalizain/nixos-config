@@ -39,6 +39,7 @@
       "1password"
       "1password-cli"
       "google-chrome"
+      "grok-build"
       "opencode-desktop"
       "visual-studio-code"
       "slack"
