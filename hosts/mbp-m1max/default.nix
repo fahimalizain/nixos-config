@@ -46,7 +46,6 @@
       "discord"
       "whatsapp"
       "spotify"
-      "telegram-desktop"
       "obsidian"
       "cloudflare-warp"
       "docker-desktop"
@@ -59,6 +58,8 @@
       "antigravity"
       "kicad"
       "linearmouse"
+      "openchamber"
+      "crossover"
     ];
     onActivation = {
       autoUpdate = true;
