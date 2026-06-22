@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, lib, ... }:
 
 {
   imports = [
@@ -48,6 +48,7 @@
       "spotify"
       "obsidian"
       "cloudflare-warp"
+      "conductor"
       "docker-desktop"
       "shottr"
       "stats"
@@ -103,6 +104,18 @@
     # Top-right hot corner -> Mission Control
     wvous-tr-corner = 2;
   };
+
+  # esengine/reasonix requires explicit trust for its packages.
+  # With cleanup = "zap", the tap gets re-added fresh each cycle losing trust,
+  # so re-assert it as the same user that `brew bundle` runs as, right before
+  # the bundle command. We prepend to the homebrew activation script's `text`
+  # (a `types.lines` option) using `mkBefore` so it runs first. The activation
+  # script runs as root, but brew stores trust per-user in ~/.homebrew/trust.json,
+  # so we must `sudo -u` to the same user `brew bundle` will run as.
+  system.activationScripts.homebrew.text = lib.mkBefore ''
+    echo "trusting esengine/reasonix tap..." >&2
+    sudo -u ${lib.escapeShellArg config.homebrew.user} --set-home /opt/homebrew/bin/brew trust esengine/reasonix 2>/dev/null || true
+  '';
 
   system.stateVersion = 5;
 
