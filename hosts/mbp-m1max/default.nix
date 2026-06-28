@@ -63,6 +63,8 @@
       "openchamber"
       "crossover"
       "aerospace"
+      "raycast"
+      "wezterm"
     ];
     onActivation = {
       autoUpdate = true;
