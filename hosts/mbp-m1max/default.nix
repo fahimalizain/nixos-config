@@ -30,6 +30,7 @@
     brews = [
       "opencode"
       "node@24"
+      "agent-browser"
     ];
     casks = [
       "esengine/reasonix/reasonix"
@@ -60,7 +61,7 @@
       "antigravity"
       "kicad"
       "linearmouse"
-      "openchamber"
+      "openchamber"          # macOS desktop GUI app (different from the @openchamber/web CLI in home.nix)
       "crossover"
       "aerospace"
       "raycast"

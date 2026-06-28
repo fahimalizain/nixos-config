@@ -1,20 +1,14 @@
-{ config, pkgs, pkgs-unstable, hostname, ... }:
+{ config, pkgs, hostname, ... }:
 
 {
   home.username = "fahimalizain";
   home.homeDirectory = "/Users/fahimalizain";
 
-  home.packages = with pkgs; [
-    pkgs-unstable.agent-browser  # Headless browser automation CLI
-  ];
-
-  home.sessionVariables = {
-    AGENT_BROWSER_SKILLS_DIR = "/etc/profiles/per-user/fahimalizain/share/agent-browser/skills";
-  };
+  home.packages = [ ];
 
   home.activation.install-openchamber = ''
     export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
-    $DRY_RUN_CMD npm install -g @openchamber/web
+    $DRY_RUN_CMD npm install -g @openchamber/web  # CLI/web tool (different from the openchamber brew cask in default.nix)
   '';
 
   home.shellAliases = {
