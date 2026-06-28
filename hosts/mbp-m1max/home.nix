@@ -14,10 +14,12 @@
 
   home.activation.install-openchamber = ''
     export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
-    if ! command -v openchamber &>/dev/null; then
-      $DRY_RUN_CMD npm install -g @openchamber/web
-    fi
+    $DRY_RUN_CMD npm install -g @openchamber/web
   '';
+
+  home.shellAliases = {
+    aerospace-ghost = "aerospace list-windows --all --json | jq -r '.[] | select(.\"window-title\"==\"\") | .\"window-id\"' | xargs -n1 aerospace close --window-id";
+  };
 
   programs.zsh.initContent = ''
     eval "$(/opt/homebrew/bin/brew shellenv zsh)"

@@ -25,6 +25,7 @@
     enable = true;
     taps = [
       "esengine/reasonix"
+      "nikitabobko/tap"
     ];
     brews = [
       "opencode"
@@ -61,6 +62,7 @@
       "linearmouse"
       "openchamber"
       "crossover"
+      "aerospace"
     ];
     onActivation = {
       autoUpdate = true;
@@ -113,8 +115,10 @@
   # script runs as root, but brew stores trust per-user in ~/.homebrew/trust.json,
   # so we must `sudo -u` to the same user `brew bundle` will run as.
   system.activationScripts.homebrew.text = lib.mkBefore ''
-    echo "trusting esengine/reasonix tap..." >&2
-    sudo -u ${lib.escapeShellArg config.homebrew.user} --set-home /opt/homebrew/bin/brew trust esengine/reasonix 2>/dev/null || true
+    ${lib.concatMapStrings (tap: ''
+      echo "trusting ${tap.name} tap..." >&2
+      sudo -u ${lib.escapeShellArg config.homebrew.user} --set-home /opt/homebrew/bin/brew trust ${tap.name} 2>/dev/null || true
+    '') config.homebrew.taps}
   '';
 
   system.stateVersion = 5;
