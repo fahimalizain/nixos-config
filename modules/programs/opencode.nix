@@ -6,6 +6,7 @@ let
   cfg = config.my_programs.opencode;
 
   # Custom overlay that patches opencode and opencode-desktop
+  # Note: v1.17.x upstream opencode.nix already handles the bun version check
   opencodePatchesOverlay = final: prev: {
     # Patch opencode to fix missing prettier dependency
     # https://github.com/anomalyco/opencode/issues/23256
@@ -15,23 +16,18 @@ let
           --replace-fail 'const prettier = await import("prettier")' 'const prettier = { format: async (s: string) => s }' \
           --replace-fail 'const babel = await import("prettier/plugins/babel")' 'const babel = {}' \
           --replace-fail 'const estree = await import("prettier/plugins/estree")' 'const estree = {}'
-
-        # Relax bun version check - nixpkgs-unstable has bun 1.3.11, opencode wants 1.3.13
-        # Patch the version check to accept bun >=1.3.11
-        sed -i 's/semver.satisfies(process.versions.bun, expectedBunVersionRange)/true/' packages/script/src/index.ts
       '';
     });
 
-    # Rebuild opencode-desktop with patched opencode and bun version fix
-    # Note: v1.15.x+ uses Electron instead of Tauri, so no cargoDeps needed
+    # Build opencode-desktop with patched opencode + bun version fix
+    # Upstream opencode.nix postPatch fixes bun check for CLI only;
+    # desktop gets fresh unpatched src, so we need to patch here too.
     opencode-desktop = (final.callPackage (inputs.opencode + "/nix/desktop.nix") {
-      opencode = final.opencode;  # Use the patched opencode from final
+      opencode = final.opencode;
     }).overrideAttrs (old: {
       postPatch = (old.postPatch or "") + ''
-        # Relax bun version check - nixpkgs-unstable has bun 1.3.11, opencode wants 1.3.13
-        # The prebuild script is run via bun from packages/desktop, which calls packages/script
-        # Find and patch all occurrences of the version check
-        find . -name "index.ts" -path "*/script/src/*" -exec sed -i 's/semver.satisfies(process.versions.bun, expectedBunVersionRange)/true/' {} \;
+        # Relax bun version check for desktop build
+        sed -i 's/throw new Error(`This script requires bun@/console.warn(`Warning: This script requires bun@/' packages/script/src/index.ts
       '';
     });
   };
