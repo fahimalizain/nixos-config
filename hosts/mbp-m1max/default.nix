@@ -28,6 +28,9 @@
       "nikitabobko/tap"
     ];
     brews = [
+      "bazelisk"
+      "buildifier"
+      { name = "openjdk@21"; link = true; }
       "opencode"
       "node@24"
       "agent-browser"
@@ -50,6 +53,7 @@
       "discord"
       "whatsapp"
       "spotify"
+      "sony-ps-remote-play"
       "obsidian"
       "cloudflare-warp"
       "conductor"
@@ -64,15 +68,24 @@
       "kicad"
       "linearmouse"
       "openchamber"          # macOS desktop GUI app (different from the @openchamber/web CLI in home.nix)
+      "cursor"
       "crossover"
+      "android-studio"
+      "android-platform-tools"
       "aerospace"
       "raycast"
       "wezterm"
     ];
     onActivation = {
       autoUpdate = true;
+      # NOTE: `zap` runs `brew bundle cleanup` after `brew bundle`, which
+      # internally calls `brew cleanup`.  If that sub-step exits non-zero
+      # (e.g. stale cache files, empty directories under /opt/homebrew/lib)
+      # the entire activation script can abort *before* home-manager
+      # activation runs.  When `nrs` ends without the expected
+      # "Activating home-manager configuration" line, re-run it
+      # on a clean state or temporarily switch to `cleanup = "uninstall"`.
       cleanup = "zap";
-      extraFlags = [ "--force-cleanup" ];
     };
   };
 
@@ -112,13 +125,11 @@
     wvous-tr-corner = 2;
   };
 
-  # esengine/reasonix requires explicit trust for its packages.
-  # With cleanup = "zap", the tap gets re-added fresh each cycle losing trust,
-  # so re-assert it as the same user that `brew bundle` runs as, right before
-  # the bundle command. We prepend to the homebrew activation script's `text`
-  # (a `types.lines` option) using `mkBefore` so it runs first. The activation
-  # script runs as root, but brew stores trust per-user in ~/.homebrew/trust.json,
-  # so we must `sudo -u` to the same user `brew bundle` will run as.
+  # Third-party taps (esengine/reasonix, nikitabobko/tap) need explicit
+  # trust before `brew bundle` runs, otherwise `command-not-found` and
+  # other brew commands will prompt.  Without `--force-cleanup`, `zap`
+  # preserves tap state across rebuilds, so a single `mkBefore` trust is
+  # enough.
   system.activationScripts.homebrew.text = lib.mkBefore ''
     ${lib.concatMapStrings (tap: ''
       echo "trusting ${tap.name} tap..." >&2

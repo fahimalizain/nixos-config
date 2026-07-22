@@ -15,6 +15,11 @@
     aerospace-ghost = "aerospace list-windows --all --json | jq -r '.[] | select(.\"window-title\"==\"\") | .\"window-id\"' | xargs -n1 aerospace close --window-id";
   };
 
+  home.sessionVariables = {
+    JAVA_HOME = "/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home";
+    ANDROID_HOME = "$HOME/Library/Android/sdk";
+  };
+
   programs.zsh.initContent = ''
     eval "$(/opt/homebrew/bin/brew shellenv zsh)"
   '';
