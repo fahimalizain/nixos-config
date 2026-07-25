@@ -41,9 +41,6 @@ in
     enableZshIntegration = isDarwin;
   };
 
-  # npm global packages directory (NixOS requires non-nix-store location)
-  home.file.".npm-global/.keep".text = "";
-
   # Shell configuration
   programs.bash.enable = !isDarwin;
   programs.zsh.enable = isDarwin;
@@ -51,10 +48,18 @@ in
   # Shell configuration (generic - applies to all enabled shells)
   home.sessionVariables = {
     NIXOS_CONFIG = "$HOME/nixos-config";
+  }
+  # NixOS: nixpkgs npm can't write into the store — park globals in $HOME.
+  # Darwin: skip — Homebrew node already uses /opt/homebrew as prefix.
+  // lib.optionalAttrs (!isDarwin) {
     NPM_CONFIG_PREFIX = "$HOME/.npm-global";
   };
 
-  home.sessionPath = [ "$NPM_CONFIG_PREFIX/bin" ];
+  home.sessionPath = lib.optionals (!isDarwin) [ "$NPM_CONFIG_PREFIX/bin" ];
+
+  home.file = lib.optionalAttrs (!isDarwin) {
+    ".npm-global/.keep".text = "";
+  };
 
   home.shellAliases = let
     rebuild = if isDarwin then "darwin-rebuild" else "nixos-rebuild";

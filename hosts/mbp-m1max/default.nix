@@ -32,7 +32,8 @@
       "buildifier"
       { name = "openjdk@21"; link = true; }
       "opencode"
-      "node@24"
+      "node"          # system Node/npm (openchamber CLI + general use)
+      "nvm"           # per-project Node versions; not used for openchamber
       "agent-browser"
     ];
     casks = [
@@ -114,9 +115,6 @@
     gh
   ];
 
-  # Ensure node@24 is found before the default Homebrew node (v26, installed as a dependency of opencode).
-  # This affects GUI apps like VSCode.
-  environment.systemPath = [ "/opt/homebrew/opt/node@24/bin" ];
 
   system.defaults.dock = {
     # Top-left hot corner -> Mission Control
