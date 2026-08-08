@@ -12,7 +12,9 @@
   # Uses Homebrew node/npm only — not nvm — so the global binary stays on
   # /opt/homebrew/bin regardless of which nvm version a project shell uses.
   home.activation.install-openchamber = ''
-    export PATH="/opt/homebrew/bin:/usr/bin:$PATH"
+    # Homebrew node/npm only (see comment above). No /usr/bin: it would shadow
+    # GNU coreutils' readlink for the rest of the HM activation (BSD readlink).
+    export PATH="/opt/homebrew/bin:$PATH"
     # Drop nvm shims if a parent shell exported them into the activation env
     unset NVM_DIR NVM_BIN NVM_INC
     if [ -x /opt/homebrew/bin/npm ]; then
@@ -36,6 +38,13 @@
     # nvm: manage multiple Node.js versions
     export NVM_DIR="$HOME/.nvm"
     [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+
+    # opencode: enable Exa web search (no auth required for the hosted MCP service)
+    export OPENCODE_ENABLE_EXA=1
+    # Optional: personal Exa API key for dedicated quota (via 1Password).
+    # Absolute op path: envExtra runs in .zshenv before brew shellenv, so
+    # /opt/homebrew/bin may not be on PATH yet (e.g. apps launched from Dock).
+    export EXA_API_KEY="$(/opt/homebrew/bin/op read 'op://Personal/Exa for Agents/APIKey-MBPM1Max' 2>/dev/null)"
   '';
 
   programs.zsh.initContent = ''
