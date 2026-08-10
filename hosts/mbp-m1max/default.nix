@@ -28,13 +28,14 @@
       "nikitabobko/tap"
     ];
     brews = [
+      "agent-browser"
+      "azure-cli"
       "bazelisk"
       "buildifier"
-      { name = "openjdk@21"; link = true; }
-      "opencode"
       "node"          # system Node/npm (openchamber CLI + general use)
       "nvm"           # per-project Node versions; not used for openchamber
-      "agent-browser"
+      "opencode"
+      { name = "openjdk@21"; link = true; }
     ];
     casks = [
       "esengine/reasonix/reasonix"
