@@ -29,6 +29,7 @@
     ];
     brews = [
       "agent-browser"
+      "awscli"
       "azure-cli"
       "bazelisk"
       "buildifier"
