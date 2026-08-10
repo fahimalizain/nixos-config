@@ -36,6 +36,7 @@
       "node"          # system Node/npm (openchamber CLI + general use)
       "nvm"           # per-project Node versions; not used for openchamber
       "opencode"
+      "rclone"
       { name = "openjdk@21"; link = true; }
     ];
     casks = [
