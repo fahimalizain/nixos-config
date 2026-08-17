@@ -116,6 +116,7 @@
     poetry
     uv
     gh
+    tmux
   ];
 
 
