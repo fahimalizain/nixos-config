@@ -63,6 +63,8 @@
     slack
     nodejs_22
     jq
+    rclone
+    zip
   ];
 
   # Enable program modules
