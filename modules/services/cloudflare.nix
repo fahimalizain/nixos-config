@@ -13,6 +13,7 @@ let
     "100.96.0.1" = [ "CF-WorkPC" ];  # Work PC via Cloudflare WARP/Zero Trust
     "100.96.0.17" = ["CF-ThinkPadNixOS"];
     "100.96.0.19" = ["CF-MBPM1Max"];
+    "100.96.0.15" = ["CF-ThinkPadWin11"];
   };
 in
 {
