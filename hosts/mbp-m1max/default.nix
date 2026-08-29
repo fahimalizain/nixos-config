@@ -26,6 +26,7 @@
     taps = [
       "esengine/reasonix"
       "nikitabobko/tap"
+      "agentwrapper/tap"
     ];
     brews = [
       "agent-browser"
@@ -82,6 +83,7 @@
       "aerospace"
       "raycast"
       "wezterm"
+      "agentwrapper/tap/agent-orchestrator"  # desktop supervisor for parallel coding agents
     ];
     onActivation = {
       autoUpdate = true;
