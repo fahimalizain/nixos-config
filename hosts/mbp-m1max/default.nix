@@ -35,6 +35,7 @@
       "bazelisk"
       "buildifier"
       "cloudflare-wrangler"
+      "gh"
       "herdr"         # terminal workspace manager for AI coding agents (bottled)
       "node"          # system Node/npm (openchamber CLI + general use)
       "nvm"           # per-project Node versions; not used for openchamber
@@ -121,7 +122,6 @@
     python312
     poetry
     uv
-    gh
     tmux
   ];
 
