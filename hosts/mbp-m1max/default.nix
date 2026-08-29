@@ -84,6 +84,7 @@
       "raycast"
       "wezterm"
       "agentwrapper/tap/agent-orchestrator"  # desktop supervisor for parallel coding agents
+      "block-buzz"
     ];
     onActivation = {
       autoUpdate = true;
