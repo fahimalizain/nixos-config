@@ -1,4 +1,4 @@
-{ config, pkgs, lib, inputs, ... }:
+{ config, pkgs, pkgs-unstable, lib, inputs, ... }:
 
 with lib;
 
@@ -35,8 +35,13 @@ let
   # Create isolated nixpkgs with unstable + upstream overlay + our patches
   # Our patches overlay must come AFTER the upstream one so we can override its packages
   opencodePkgs = import inputs.nixpkgs-unstable {
-    system = pkgs.system;
-    config.allowUnfree = true;
+    system = pkgs.stdenv.hostPlatform.system;
+    config = {
+      allowUnfree = true;
+      # Upstream desktop.nix pins electron_41, which nixpkgs-unstable marks as
+      # EOL/insecure. Allow exactly that version so eval keeps working across bumps.
+      permittedInsecurePackages = [ "electron-${pkgs-unstable.electron_41.version}" ];
+    };
     overlays = [
       inputs.opencode.overlays.default  # First: add opencode and opencode-desktop
       opencodePatchesOverlay             # Second: patch them

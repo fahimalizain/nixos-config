@@ -6,7 +6,7 @@ let
   cfg = config.my_services.cloudflare;
   # Import nixos-unstable with allowUnfree for cloudflare-warp
   nixos-unstable = import inputs.nixos-unstable {
-    system = pkgs.system;
+    system = pkgs.stdenv.hostPlatform.system;
     config.allowUnfree = true;
   };
   zerotrustHosts = {

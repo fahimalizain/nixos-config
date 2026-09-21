@@ -2,22 +2,17 @@
   description = "My NixOS configuration";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixos-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nix-darwin = {
-      url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    nix-darwin-unstable = {
-      url = "github:nix-darwin/nix-darwin/master";
+      url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -27,8 +22,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, nixos-unstable, home-manager, nix-darwin, nix-darwin-unstable, opencode, ... }@inputs: let
-    # TODO: Remove `inherit system` when nixpkgs-unstable fixes stdenv.hostPlatform.system deprecation
+  outputs = { self, nixpkgs, nixpkgs-unstable, nixos-unstable, home-manager, nix-darwin, opencode, ... }@inputs: let
     mkPkgsUnstable = system: import nixpkgs-unstable {
       inherit system;
       config.allowUnfree = true;
