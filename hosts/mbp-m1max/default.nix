@@ -54,7 +54,7 @@
       "1password-cli"
       "claude-code"
       "google-chrome"
-      "grok-build"
+      "webex"
       "iina"
       "opencode-desktop"
       "visual-studio-code"
@@ -83,6 +83,7 @@
       "android-platform-tools"
       "aerospace"
       "raycast"
+      "superwhisper"
       "wezterm"
       "agentwrapper/tap/agent-orchestrator"  # desktop supervisor for parallel coding agents
       "block-buzz"

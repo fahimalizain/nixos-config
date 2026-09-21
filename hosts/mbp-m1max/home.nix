@@ -18,7 +18,7 @@
     # Drop nvm shims if a parent shell exported them into the activation env
     unset NVM_DIR NVM_BIN NVM_INC
     if [ -x /opt/homebrew/bin/npm ]; then
-      $DRY_RUN_CMD /opt/homebrew/bin/npm install -g @openchamber/web
+      $DRY_RUN_CMD /opt/homebrew/bin/npm install -g @openchamber/web @getpaseo/cli
     else
       echo "install-openchamber: skipping — Homebrew npm missing (brew install node)" >&2
     fi
