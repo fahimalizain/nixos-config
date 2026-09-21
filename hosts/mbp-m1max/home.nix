@@ -46,5 +46,9 @@
     # nvm: manage multiple Node.js versions
     [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
     [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+
+    export PATH="$HOME/.grok/bin:$PATH"
+    fpath=("$HOME/.grok/completions/zsh" $fpath)
+    autoload -Uz compinit && compinit -C
   '';
 }
