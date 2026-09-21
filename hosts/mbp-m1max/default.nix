@@ -27,6 +27,7 @@
       "esengine/reasonix"
       "nikitabobko/tap"
       "agentwrapper/tap"
+      "hashicorp/tap"
     ];
     brews = [
       "agent-browser"
@@ -36,11 +37,12 @@
       "buildifier"
       "cloudflare-wrangler"
       "gh"
+      "hashicorp/tap/terraform"
       "herdr"         # terminal workspace manager for AI coding agents (bottled)
       "node"          # system Node/npm (openchamber CLI + general use)
       "nvm"           # per-project Node versions; not used for openchamber
-      "opencode"
       "rclone"
+      "ripgrep"
       "scrcpy"
       { name = "openjdk@21"; link = true; }
     ];
@@ -90,14 +92,17 @@
     ];
     onActivation = {
       autoUpdate = true;
-      # NOTE: `zap` runs `brew bundle cleanup` after `brew bundle`, which
-      # internally calls `brew cleanup`.  If that sub-step exits non-zero
-      # (e.g. stale cache files, empty directories under /opt/homebrew/lib)
-      # the entire activation script can abort *before* home-manager
-      # activation runs.  When `nrs` ends without the expected
-      # "Activating home-manager configuration" line, re-run it
-      # on a clean state or temporarily switch to `cleanup = "uninstall"`.
+      # `zap` makes nix-darwin run `brew bundle ... --zap --force-cleanup` in a
+      # single pass (nix-darwin >= 26.05).  If that exits non-zero, activation
+      # aborts *before* home-manager runs.  When `nrs` ends without the
+      # expected "Activating home-manager configuration" line, re-run it or
+      # temporarily switch to `cleanup = "uninstall"`.
       cleanup = "zap";
+      # The esengine/reasonix cask is incompatible with Homebrew 7's install
+      # steps DSL ("undefined ... staged_path"), which fails the whole bundle.
+      # Skip it until the tap regenerates the cask; it stays installed and
+      # cleanup still counts it as a kept cask.
+      extraEnv.HOMEBREW_BUNDLE_CASK_SKIP = "reasonix esengine/reasonix/reasonix";
     };
   };
 
