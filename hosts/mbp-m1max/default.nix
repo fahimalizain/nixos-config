@@ -28,6 +28,7 @@
       "nikitabobko/tap"
       "agentwrapper/tap"
       "hashicorp/tap"
+      "mobile-dev-inc/tap"
     ];
     brews = [
       "agent-browser"
@@ -39,6 +40,7 @@
       "gh"
       "hashicorp/tap/terraform"
       "herdr"         # terminal workspace manager for AI coding agents (bottled)
+      "mobile-dev-inc/tap/maestro"
       "node"          # system Node/npm (openchamber CLI + general use)
       "nvm"           # per-project Node versions; not used for openchamber
       "rclone"
