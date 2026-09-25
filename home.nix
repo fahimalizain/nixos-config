@@ -68,7 +68,6 @@ in
     nrb = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo SSH_AUTH_SOCK=$SSH_AUTH_SOCK ${rebuild} build --flake $NIXOS_CONFIG#${hostname}";
   } // lib.optionalAttrs isDarwin {
     brew-upgrade = "brew update && brew upgrade";
-    opencode_daemon = "opencode attach http://127.0.0.1:14096";
   };
 
   # This value determines the Home Manager release

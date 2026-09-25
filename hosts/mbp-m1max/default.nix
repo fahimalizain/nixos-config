@@ -60,7 +60,6 @@
       "google-chrome"
       "webex"
       "iina"
-      "opencode-desktop"
       "visual-studio-code"
       "slack"
       "discord"
