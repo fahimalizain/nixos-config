@@ -91,6 +91,7 @@
       "agentwrapper/tap/agent-orchestrator"  # desktop supervisor for parallel coding agents
       "block-buzz"
       "session-manager-plugin"  # AWS SSM Session Manager plugin (for `aws ssm start-session`)
+      "blender"                 # 3D creation suite; also exposes `blender` CLI for headless renders
     ];
     onActivation = {
       autoUpdate = true;
