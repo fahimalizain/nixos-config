@@ -83,7 +83,9 @@
       "cursor"
       "crossover"
       "android-studio"
-      "android-platform-tools"
+      # adb/fastboot/hprof-conv come from the Android SDK's platform-tools,
+      # which home.nix puts on PATH.  Installing this cask would add a second
+      # copy that shadows the SDK in /opt/homebrew/bin.
       "aerospace"
       "raycast"
       "superwhisper"

@@ -50,5 +50,13 @@
     export PATH="$HOME/.grok/bin:$PATH"
     fpath=("$HOME/.grok/completions/zsh" $fpath)
     autoload -Uz compinit && compinit -C
+
+    # Android SDK toolchain.  ANDROID_HOME is duplicated from
+    # home.sessionVariables above so this block stands on its own; the SDK's
+    # platform-tools then go first so adb/fastboot win over /opt/homebrew/bin
+    # (the android-platform-tools cask is deliberately not installed, and both
+    # scrcpy and Maestro resolve adb from PATH).
+    export ANDROID_HOME="$HOME/Library/Android/sdk"
+    export PATH="$ANDROID_HOME/platform-tools:$PATH"
   '';
 }
