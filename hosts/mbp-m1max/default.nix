@@ -59,6 +59,7 @@
       "claude-code"
       "google-chrome"
       "webex"
+      "microsoft-teams"
       "iina"
       "visual-studio-code"
       "slack"
