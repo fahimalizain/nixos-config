@@ -8,19 +8,27 @@
     coreutils     # GNU readlink for Home Manager activation on macOS
   ];
 
-  # CLI/web server (distinct from the openchamber brew cask desktop app).
-  # Uses Homebrew node/npm only — not nvm — so the global binary stays on
-  # /opt/homebrew/bin regardless of which nvm version a project shell uses.
-  home.activation.install-openchamber = ''
-    # Homebrew node/npm only (see comment above). No /usr/bin: it would shadow
-    # GNU coreutils' readlink for the rest of the HM activation (BSD readlink).
+  # Agent CLI toolchain. Homebrew node/npm only — not nvm — so the global
+  # binaries stay on /opt/homebrew/bin regardless of which nvm version a
+  # project shell uses.
+  # - @openchamber/web: CLI/web server (distinct from the openchamber brew cask
+  #   desktop app in default.nix).
+  # - @getpaseo/cli: Paseo CLI.
+  # - @opencode-ai/browser-control: Browser Control CLI + MCP server; drives the
+  #   real Chrome via the unpacked extension shipped in the npm package. Load it
+  #   once from "$(npm root -g)/@opencode-ai/browser-control/extension/dist" and
+  #   reload it after any npm upgrade. Agent skill:
+  #   npx skills add anomalyco/browser-control --skill browser-control -g
+  home.activation.install-npm-packages = ''
+    # No /usr/bin: it would shadow GNU coreutils' readlink for the rest of the
+    # HM activation (BSD readlink).
     export PATH="/opt/homebrew/bin:$PATH"
     # Drop nvm shims if a parent shell exported them into the activation env
     unset NVM_DIR NVM_BIN NVM_INC
     if [ -x /opt/homebrew/bin/npm ]; then
-      $DRY_RUN_CMD /opt/homebrew/bin/npm install -g @openchamber/web @getpaseo/cli
+      $DRY_RUN_CMD /opt/homebrew/bin/npm install -g @openchamber/web @getpaseo/cli @opencode-ai/browser-control
     else
-      echo "install-openchamber: skipping — Homebrew npm missing (brew install node)" >&2
+      echo "install-npm-packages: skipping — Homebrew npm missing (brew install node)" >&2
     fi
   '';
 
