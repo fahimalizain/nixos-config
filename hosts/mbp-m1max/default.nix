@@ -29,6 +29,7 @@
       "agentwrapper/tap"
       "hashicorp/tap"
       "mobile-dev-inc/tap"
+      "stablyai/orca"
     ];
     brews = [
       "agent-browser"
@@ -95,6 +96,7 @@
       "block-buzz"
       "session-manager-plugin"  # AWS SSM Session Manager plugin (for `aws ssm start-session`)
       "blender"                 # 3D creation suite; also exposes `blender` CLI for headless renders
+      "stablyai/orca/orca"      # Orca, from the stablyai/orca tap
     ];
     onActivation = {
       autoUpdate = true;
