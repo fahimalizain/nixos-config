@@ -134,6 +134,7 @@
     vim
     wget
     vscode
+    google-chrome
     nodejs
     btop
     # Not in the stock install, but the nrs/nrb aliases run a pre-build hook
