@@ -1,26 +1,32 @@
-{ config, pkgs, inputs, ... }:
+# ThinkPad T14 Gen 2i (20W1S21K00)
+#
+# Snapshot of the NixOS 26.05 system currently running on this machine.
+# Everything mirrors the stock installer configuration except:
+#   - hostname is thinkpad-nixos (matches the flake attribute / nrs alias)
+#   - 1Password GUI + CLI are installed
+#   - flakes are enabled, which is required to rebuild from ~/nixos-config
+#
+# Keep this file in sync with the live system: anything configured by hand
+# outside this repo will be lost on the next rebuild.
+
+{ config, pkgs, ... }:
 
 {
   imports = [
     ./hardware-configuration.nix
-    ../../modules/programs/rustdesk.nix
     ../../modules/programs/1password.nix
-    ../../modules/programs/google-chrome.nix
-    ../../modules/programs/vscode.nix
-    ../../modules/programs/opencode.nix
-    ../../modules/programs/ghostty.nix
-    ../../modules/services/tailscale.nix
-    ../../modules/services/cloudflare.nix
-    ./autostart.nix
   ];
 
-  # Boot loader
+  # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Networking
   networking.hostName = "thinkpad-nixos";
   networking.networkmanager.enable = true;
+
+  # NetworkManager applet for the LXQt panel
+  programs.nm-applet.enable = true;
 
   # Time zone
   time.timeZone = "Asia/Kolkata";
@@ -39,106 +45,26 @@
     LC_TIME = "en_IN";
   };
 
-  # Enable flakes
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-
   # User account
   users.users.fahimalizain = {
     isNormalUser = true;
     description = "Fahim Ali Zain";
-    extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" ];
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJMTFvMRPOzg6Y8LAdsAY2v8V5aVk6rYon6TzYJM9h2S op/ThinkpadNixOS"
-    ];
+    extraGroups = [ "networkmanager" "wheel" ];
   };
 
-  # System packages
-  environment.systemPackages = with pkgs; [
-    git
-    rsync
-    spotify
-    slack
-    nodejs_22
-    jq
-    rclone
-    zip
-  ];
-
-  # Enable program modules
-  my_programs.rustdesk.enable = true;
-  my_programs._1password = {
-    enable = true;
-    username = "fahimalizain";
-  };
-  my_programs.google-chrome.enable = true;
-  my_programs.vscode.enable = true;
-  my_programs.ghostty.enable = true;
-  my_programs.opencode = {
-    enable = true;        # CLI version
-    desktop.enable = true; # Desktop GUI version
-    fixDbSymlink.enable = true;  # Fix database migration issue for nix flakes build
-  };
-  programs.firefox.enable = true;
-
-  # nix-ld: Helps run dynamically linked binaries (not built for NixOS)
-  # by providing common shared libraries in standard locations (/lib, /lib64)
-  programs.nix-ld = {
-    enable = true;
-    libraries = with pkgs; [
-      zlib               # Compression library (used by many Python packages)
-      stdenv.cc.cc.lib   # C++ standard library (libstdc++.so.6, needed by compiled Python wheels)
-    ];
-  };
-
-  # Host-specific autostart applications
-  my_services.autostart._1password = true;
-  my_services.autostart.rustdesk = true;
-
-  # Enable service modules
-  my_services.tailscale = {
-    enable = true;
-    trayscale.enable = true;
-  };
-  my_services.cloudflare = {
-    warp.enable = true;                      # Cloudflare One Client (WARP)
-    tunnel.enable = true;                    # Cloudflare Tunnel (cloudflared)
-    zerotrust.fahimalizain.enable = true;    # Zero Trust hosts (fahimalizain org)
-  };
-
-  # SSH server
-  services.openssh = {
-    enable = true;
-    settings = {
-      PasswordAuthentication = false;
-      PermitRootLogin = "prohibit-password";
-    };
-    openFirewall = true;
-  };
-
-  # X11 and Desktop Environment
+  # X11 + LXQt desktop
   services.xserver.enable = true;
+  services.xserver.displayManager.lightdm.enable = true;
+  services.xserver.desktopManager.lxqt.enable = true;
   services.xserver.xkb = {
     layout = "us";
     variant = "";
   };
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.settings = {
-    Users.RememberLastSession = false;
-  };
-  services.displayManager.autoLogin = {
-    enable = true;
-    user = "fahimalizain";
-  };
-  services.displayManager.defaultSession = "plasmax11";
-  services.desktopManager.plasma6.enable = true;
 
   # Printing
   services.printing.enable = true;
 
-  # Audio with Pipewire
+  # Audio with PipeWire
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -148,70 +74,41 @@
     pulse.enable = true;
   };
 
-  # Power & Sleep management (laptop used as a desktop replacement)
-  # Never auto-sleep — this machine is always plugged in and accessed remotely
-  systemd.targets.sleep.enable = false;
-  systemd.targets.suspend.enable = false;
-  systemd.targets.hibernate.enable = false;
-  systemd.targets.hybrid-sleep.enable = false;
+  # Firefox
+  programs.firefox.enable = true;
 
-  # Clamshell / closed-lid boot: force ACPI lid state to "open" during boot so
-  # the i915 driver does not forcibly disable the internal eDP panel when the
-  # lid is closed on startup. Required for remote access (RustDesk) after reboot.
-  boot.kernelParams = [
-    "button.lid_init_state=open"
-  ];
-
-  # Clamshell lid behavior: suspend on battery, ignore on AC / docked
-  services.logind.settings.Login = {
-    HandleLidSwitch = "suspend";
-    HandleLidSwitchExternalPower = "ignore";
-    HandleLidSwitchDocked = "ignore";
-  };
-
-  # TrackPoint support (Lenovo ThinkPad)
-  hardware.trackpoint.enable = true;
-  hardware.trackpoint.emulateWheel = true;
-
-  # TouchPad configuration with multi-finger gesture support
-  services.libinput = {
+  # 1Password GUI + CLI. polkitPolicyOwners lets the GUI unlock without a
+  # root authentication prompt.
+  my_programs._1password = {
     enable = true;
-    touchpad = {
-      tapping = true;
-      tappingDragLock = true;
-      naturalScrolling = true;
-      disableWhileTyping = true;
-      middleEmulation = true;
-      # Enable multi-finger gestures
-      clickMethod = "clickfinger";
-    };
+    username = "fahimalizain";
   };
 
-  # Docker
-  virtualisation.docker.enable = true;
+  # Allow unfree packages (1Password is unfree)
+  nixpkgs.config.allowUnfree = true;
 
-  # Virtual Machine Manager (libvirt/QEMU)
-  virtualisation.libvirtd.enable = true;
-  programs.virt-manager.enable = true;
-
-  # Fingerprint sensor (Synaptics Prometheus MIS)
-  services.fprintd.enable = false;
-
-  # Allow passwordless nrb (nixos-rebuild build only, not switch)
-  security.sudo.extraRules = [
-    {
-      users = [ "fahimalizain" ];
-      commands = [
-        {
-          # Allow "nixos-rebuild build" with any arguments (for nrb alias)
-          # Using /run/current-system/sw/bin path which is what sudo resolves
-          command = "/run/current-system/sw/bin/nixos-rebuild build";
-          options = [ "NOPASSWD" "SETENV" ];
-        }
-      ];
-    }
+  # System packages
+  environment.systemPackages = with pkgs; [
+    vim
+    wget
+    vscode
+    nodejs
+    btop
+    # Not in the stock install, but the nrs/nrb aliases run a pre-build hook
+    # that calls git, and flakes only see git-tracked files.
+    git
   ];
 
-  # This value determines the NixOS release
-  system.stateVersion = "25.11";
+  # nix-ld lets unpatched binaries run (VS Code extensions, pip wheels, ...)
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    stdenv.cc.cc
+    zlib
+  ];
+
+  # Required to rebuild this system from the flake in ~/nixos-config.
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # First NixOS release installed on this machine — do not bump.
+  system.stateVersion = "26.05";
 }

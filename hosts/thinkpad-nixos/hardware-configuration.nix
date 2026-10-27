@@ -10,35 +10,22 @@
 
   boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "nvme" "usb_storage" "sd_mod" "sdhci_pci" ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" "btusb" ];
-
-  # Enable Bluetooth support
-  # ThinkPad T14 Gen 2i uses Intel AX201/AX211 (btintel) or Realtek (btrtl)
-  # btusb is the generic driver that auto-loads the appropriate module
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
+  boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
-  # Power optimization for laptop battery life
-  powerManagement.powertop.enable = true;
-  environment.systemPackages = [ pkgs.powertop ];  # GUI and CLI tool
-
-  # Audio: HDA codec uses default power saving. If jack detection fails after
-  # unplugging and re-plugging headphones, run the 'refresh_audio' alias.
-
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/ce0fee98-77f6-471e-bb50-717a05b354d7";
+    { device = "/dev/disk/by-uuid/68bf88eb-3541-4670-a495-fb2526840ee7";
       fsType = "ext4";
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/E6E0-5922";
+    { device = "/dev/disk/by-uuid/DBA0-44B8";
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
   swapDevices =
-    [ { device = "/dev/disk/by-uuid/15ae7f82-7079-477d-ae22-609089981255"; }
+    [ { device = "/dev/disk/by-uuid/30c69c5a-effb-4f32-8e15-9a552859a3e2"; }
     ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";

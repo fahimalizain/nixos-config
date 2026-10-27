@@ -13,7 +13,7 @@
 
 | Identifier | Value |
 |------------|-------|
-| **Machine ID** | `e4af9ba42d8f4d90a500b1917947339f` |
+| **Machine ID** | `3a21187ece644b2fb620ef3b66aa3661` |
 | **MTM (Machine Type-Model)** | 20W1S21K00 |
 | **Product SKU** | LENOVO_MT_20W1_BU_Think_FM_ThinkPad T14 Gen 2i |
 | **WiFi MAC** | `a0:e7:0b:25:b5:93` |
@@ -61,6 +61,18 @@
 | **Boot Partition** | vfat (EFI) |
 | **Swap** | Enabled (separate partition) |
 
+### Partition Layout (current install)
+
+| Partition | Size | Filesystem | UUID |
+|-----------|------|------------|------|
+| `nvme0n1p1` (`/boot`) | 1 GB | vfat (EFI) | `DBA0-44B8` |
+| `nvme0n1p2` (`/`) | 467 GB | ext4 | `68bf88eb-3541-4670-a495-fb2526840ee7` |
+| `nvme0n1p3` (swap) | 8.8 GB | swap | `30c69c5a-effb-4f32-8e15-9a552859a3e2` |
+
+> These UUIDs are hard-coded in `hardware-configuration.nix`. If the disk is
+> repartitioned or NixOS is reinstalled, regenerate that file and update the
+> table above.
+
 ## Graphics
 
 | Specification | Details |
@@ -73,11 +85,11 @@
 
 | Feature | Status |
 |---------|--------|
-| **TrackPoint** | Enabled with wheel emulation |
-| **TouchPad** | Supported |
-| **Fingerprint** | Synaptics Prometheus MIS (06cb:00bd) |
-| **Desktop Environment** | KDE Plasma 6 |
-| **Display Manager** | SDDM |
+| **TrackPoint** | Hardware present (default config) |
+| **TouchPad** | Supported (default libinput config) |
+| **Fingerprint** | Synaptics Prometheus MIS (06cb:00bd), not enabled |
+| **Desktop Environment** | LXQt |
+| **Display Manager** | LightDM |
 | **X11** | Enabled |
 
 ## Camera
@@ -97,7 +109,7 @@
 | **Thunderbolt** | Enabled (initrd) |
 | **USB** | USB 3.2 / USB-C |
 | **Network** | NetworkManager |
-| **Bluetooth** | Intel AX201/AX211 (btusb/btintel) |
+| **Bluetooth** | Not enabled (hardware present: Intel AX201/AX211) |
 | **Audio** | PipeWire with PulseAudio compatibility |
 | **Printing** | CUPS enabled |
 
@@ -120,22 +132,23 @@
 ## Kernel & Modules
 
 ```
-Available Kernel Modules:
+Boot kernel modules (from hardware-configuration.nix):
+- kvm-intel (Intel virtualization)
+
+initrd availableKernelModules:
 - xhci_pci (USB 3.0)
 - thunderbolt
 - nvme (NVMe storage)
 - usb_storage
 - sd_mod (SD cards)
 - sdhci_pci (SD host controller)
-- kvm-intel (Intel virtualization)
-- btusb (Bluetooth USB driver)
 ```
 
 ## Software Environment
 
 | Category | Details |
 |----------|---------|
-| **OS** | NixOS 25.11 (Vicuna) |
+| **OS** | NixOS 26.05 (Yarara) |
 | **Kernel** | Linux (latest stable) |
 | **Flakes** | Enabled |
 | **Home Manager** | Integrated as NixOS module |
@@ -144,20 +157,22 @@ Available Kernel Modules:
 
 ## Enabled Features
 
-- ✅ KDE Plasma 6 Desktop
-- ✅ PipeWire Audio (ALSA/Pulse compatible)
-- ✅ Docker Virtualization
-- ✅ TrackPoint with wheel emulation
-- ✅ 1Password GUI & CLI
-- ✅ Google Chrome
-- ✅ VS Code
-- ✅ Firefox
-- ✅ RustDesk
-- ✅ OpenCode
-- ✅ Fingerprint sensor (fprintd)
-- ✅ Bluetooth (Intel AX201/AX211)
-- ✅ NetworkManager
+- ✅ LXQt desktop (LightDM)
+- ✅ PipeWire audio (ALSA/Pulse compatible)
+- ✅ NetworkManager + nm-applet
 - ✅ Printing support (CUPS)
+- ✅ Firefox
+- ✅ VS Code
+- ✅ Node.js (`nodejs`)
+- ✅ 1Password GUI & CLI
+- ✅ nix-ld (unpatched binaries)
+- ✅ Intel microcode updates
+- ❌ Docker / libvirt
+- ❌ RustDesk
+- ❌ Tailscale / Cloudflare
+- ❌ Bluetooth
+- ❌ Fingerprint reader
+- ❌ TrackPoint wheel emulation
 
 ---
 
