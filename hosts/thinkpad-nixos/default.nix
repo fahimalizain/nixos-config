@@ -20,6 +20,8 @@
     ../../modules/hardware/battery-charge-threshold.nix
     ../../modules/programs/1password.nix
     ../../modules/programs/rustdesk.nix
+    ../../modules/services/k3s.nix
+    ../../modules/services/tailscale.nix
   ];
 
   # Use the systemd-boot EFI boot loader.
@@ -100,6 +102,20 @@
   # Start the RustDesk GUI on login.
   # autostart.nix writes ~/.config/autostart/rustdesk.desktop.
   my_services.autostart.rustdesk = true;
+
+  # Single-node k3s control plane. Flux CD manages workloads; cluster
+  # manifests live in the separate homek3s repo.
+  #
+  # The MagicDNS name is a TLS SAN so kubectl from the MacBook can verify
+  # the API certificate.
+  my_services.k3s = {
+    enable = true;
+    tlsSANs = [ "thinkpad-nixos.tail8395b3.ts.net" ];
+  };
+
+  # Stable address for the API, independent of Wi-Fi/DHCP changes. The k3s
+  # module opens 6443 on tailscale0 when this is enabled.
+  my_services.tailscale.enable = true;
 
   # This machine runs 24x7 on AC power, so keep the battery in its
   # long-life window instead of holding it at 100% all the time.

@@ -9,6 +9,8 @@
   # Settings → Developer → "Use the SSH Agent" enabled.
   home.sessionVariables = {
     SSH_AUTH_SOCK = "/home/fahimalizain/.1password/agent.sock";
+    # Written by k3s with mode 0644, see modules/services/k3s.nix.
+    KUBECONFIG = "/etc/rancher/k3s/k3s.yaml";
   };
 
   # SSH client config (~/.ssh/config). Private keys never touch the disk:
