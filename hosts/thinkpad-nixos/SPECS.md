@@ -119,6 +119,7 @@
 |---------------|---------|
 | **Battery Model** | 5B10W51827 |
 | **Type** | Internal Lithium Polymer |
+| **Charge Threshold** | Stop at 60%, resume at 55% (24×7 on AC) |
 
 ## Boot & Firmware
 
@@ -167,6 +168,7 @@ initrd availableKernelModules:
 - ✅ 1Password GUI & CLI
 - ✅ nix-ld (unpatched binaries)
 - ✅ Intel microcode updates
+- ✅ Battery charge limit (60%)
 - ❌ Docker / libvirt
 - ✅ RustDesk
 - ❌ Tailscale / Cloudflare

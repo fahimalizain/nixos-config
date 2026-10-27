@@ -5,6 +5,7 @@
 #   - hostname is thinkpad-nixos (matches the flake attribute / nrs alias)
 #   - 1Password GUI + CLI are installed
 #   - RustDesk is installed for remote desktop access
+#   - battery charge is capped at 60% / resumes at 55% (24x7 host)
 #   - flakes are enabled, which is required to rebuild from ~/nixos-config
 #
 # Keep this file in sync with the live system: anything configured by hand
@@ -16,6 +17,7 @@
   imports = [
     ./hardware-configuration.nix
     ./autostart.nix
+    ../../modules/hardware/battery-charge-threshold.nix
     ../../modules/programs/1password.nix
     ../../modules/programs/rustdesk.nix
   ];
@@ -98,6 +100,15 @@
   # Start the RustDesk GUI on login.
   # autostart.nix writes ~/.config/autostart/rustdesk.desktop.
   my_services.autostart.rustdesk = true;
+
+  # This machine runs 24x7 on AC power, so keep the battery in its
+  # long-life window instead of holding it at 100% all the time.
+  # The ThinkPad EC persists these values across reboots and suspend.
+  my_hardware.batteryChargeThreshold = {
+    enable = true;
+    start = 55;
+    end = 60;
+  };
 
   # Allow unfree packages (1Password is unfree)
   nixpkgs.config.allowUnfree = true;
