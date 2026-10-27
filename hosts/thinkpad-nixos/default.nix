@@ -110,7 +110,19 @@
   # the API certificate.
   my_services.k3s = {
     enable = true;
-    tlsSANs = [ "thinkpad-nixos.tail8395b3.ts.net" ];
+
+    # Pin kubelet, the API endpoint, and flannel to the tailnet. Tailscale
+    # still sends the encrypted traffic directly over the LAN when both nodes
+    # are local, but the firewall only opens kubelet/flannel on tailscale0.
+    nodeIP = "100.98.242.77";
+    flannelInterface = "tailscale0";
+
+    # The MagicDNS name is for clients; the IP is what k3s advertises to the
+    # other node, so include both in the API certificate.
+    tlsSANs = [
+      "thinkpad-nixos.tail8395b3.ts.net"
+      "100.98.242.77"
+    ];
   };
 
   # Stable address for the API, independent of Wi-Fi/DHCP changes. The k3s

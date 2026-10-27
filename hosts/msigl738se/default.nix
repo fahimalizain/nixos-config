@@ -118,7 +118,16 @@
     role = "agent";
     serverAddr = "https://thinkpad-nixos.tail8395b3.ts.net:6443";
     tokenFile = "/var/lib/rancher/k3s/agent-token";
-    nodeLabels = [ "node-role.kubernetes.io/worker=" ];
+
+    # Pin kubelet/flannel to the tailnet. The firewall only allows 10250/tcp
+    # and 8472/udp on tailscale0; advertising the Wi-Fi address would bypass
+    # Tailscale and get dropped.
+    nodeIP = "100.95.21.21";
+    flannelInterface = "tailscale0";
+
+    # kubelet rejects node-role.kubernetes.io/* through --node-label. Apply
+    # the worker role once after the node joins:
+    #   sudo k3s kubectl label node msigl738se node-role.kubernetes.io/worker=
   };
 
   # Stable address for the agent, independent of Wi-Fi/DHCP changes. The

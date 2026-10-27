@@ -24,18 +24,24 @@ from the next section exists.
    ```
 
 2. Copy the node token from the server. The token is a secret, so it is not in
-   this repo:
+   this repo. On the ThinkPad, print it:
+
+   ```bash
+   sudo cat /var/lib/rancher/k3s/server/node-token
+   ```
+
+   Then, on this machine, paste it into a root-only file:
 
    ```bash
    sudo install -d -m 700 /var/lib/rancher/k3s
-   ssh -t fahimalizain@thinkpad-nixos.tail8395b3.ts.net \
-     'sudo cat /var/lib/rancher/k3s/server/node-token' \
-     | tr -d '\r' \
+   read -rsp 'Paste k3s token: ' K3S_TOKEN; echo
+   printf '%s\n' "$K3S_TOKEN" \
      | sudo install -m 600 /dev/stdin /var/lib/rancher/k3s/agent-token
+   unset K3S_TOKEN
    ```
 
-   `ssh -t` gives the remote `sudo` a terminal for its password prompt;
-   `tr -d '\r'` strips the carriage returns that the remote pty adds.
+   `read -s` keeps the token out of shell history. The ThinkPad does not run
+   sshd, so there is no one-line `ssh` version of this step.
 
 3. Restart k3s so it picks up the token:
 
@@ -43,20 +49,43 @@ from the next section exists.
    sudo systemctl restart k3s
    ```
 
-4. Verify from the server:
+4. Apply the worker role label from the server:
 
    ```bash
-   sudo k3s kubectl get nodes
+   sudo k3s kubectl label node msigl738se node-role.kubernetes.io/worker=
    ```
 
-   `msigl738se` should appear with the `node-role.kubernetes.io/worker` label
-   and become `Ready` once flannel and kubelet are up.
+   The label cannot be set through k3s `nodeLabels`: kubelet rejects
+   `node-role.kubernetes.io/*` in `--node-label` on Kubernetes 1.35.
+
+5. Verify from the server:
+
+   ```bash
+   sudo k3s kubectl get nodes -o wide
+   sudo k3s kubectl get node msigl738se --show-labels
+   ```
+
+   `msigl738se` should be `Ready`, have the worker label, and show
+   `INTERNAL-IP` `100.95.21.21`.
 
 ## Notes
 
-- The agent reaches the API at `https://thinkpad-nixos.tail8395b3.ts.net:6443`.
-  It does not open any ports on the LAN; kubelet and flannel traffic is allowed
-  on `tailscale0` only.
+- k3s is pinned to the tailnet on both nodes:
+  - this host: `100.95.21.21`
+  - server: `100.98.242.77`
+
+  kubelet, the API endpoint, and flannel all use these addresses, so traffic
+  stays on `tailscale0` and the firewall never opens on the LAN. When both
+  machines are local, Tailscale still carries the encrypted packets directly
+  over the LAN (check with `tailscale status`).
+
+  Tailscale IPs are stable for the life of the device, but if one is ever
+  reassigned, update `nodeIP` and the server's `tlsSANs` in both host configs
+  and rebuild both machines.
+
+- The API is also reachable at
+  `https://thinkpad-nixos.tail8395b3.ts.net:6443`; the MagicDNS name is in the
+  server certificate as well as the Tailscale IP.
 - Unlike the ThinkPad, this host does not enable the battery charge threshold
   module (the MSI embedded controller does not expose that interface).
 - `/etc/nixos` is a symlink to `~/nixos-config`, matching the ThinkPad setup.

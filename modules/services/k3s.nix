@@ -6,6 +6,10 @@
 # The API server is reachable from other Tailscale devices only. No ports are
 # opened on the LAN, so joining an untrusted Wi-Fi network exposes nothing.
 # Worker nodes join over the tailnet as well.
+#
+# For that to work, every node must advertise its Tailscale IP (`nodeIP`) and
+# run flannel on tailscale0 (`flannelInterface`). Otherwise k3s picks the LAN
+# address, bypasses Tailscale, and the firewall drops kubelet/flannel traffic.
 
 { config, pkgs, lib, ... }:
 
@@ -73,6 +77,27 @@ in
       description = "Taints applied to this node at registration.";
     };
 
+    nodeIP = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "100.64.0.10";
+      description = ''
+        IP address to advertise for this node. On a tailnet, set this to the
+        host's Tailscale IPv4 address so kubelet and the API endpoint use
+        `tailscale0` instead of the LAN interface.
+      '';
+    };
+
+    flannelInterface = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      example = "tailscale0";
+      description = ''
+        Interface flannel uses for inter-node VXLAN traffic. Set this to
+        `tailscale0` when `nodeIP` is the Tailscale address.
+      '';
+    };
+
     clusterInit = mkOption {
       type = types.bool;
       default = false;
@@ -113,6 +138,7 @@ in
       tokenFile = cfg.tokenFile;
       nodeLabel = cfg.nodeLabels;
       nodeTaint = cfg.nodeTaints;
+      nodeIP = cfg.nodeIP;
       clusterInit = cfg.clusterInit;
 
       extraFlags =
@@ -125,11 +151,20 @@ in
             unique ([ "127.0.0.1" "localhost" config.networking.hostName ] ++ cfg.tlsSANs)
           )
         )
+        ++ optional (cfg.flannelInterface != null) "--flannel-iface=${cfg.flannelInterface}"
         ++ cfg.extraFlags;
 
       # This machine has an 8.8 GiB swap partition; kubelet refuses to start
       # with swap enabled unless told otherwise.
       extraKubeletConfig.failSwapOn = false;
+    };
+
+    # When k3s is pinned to a Tailscale address, tailscale0 must exist before
+    # k3s starts. tailscaled is notify-based and brings the interface up as
+    # part of startup.
+    systemd.services.k3s = mkIf config.services.tailscale.enable {
+      wants = [ "tailscaled.service" ];
+      after = [ "tailscaled.service" ];
     };
 
     # Kernel bits kube-proxy and flannel need.
