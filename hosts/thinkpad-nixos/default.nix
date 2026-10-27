@@ -14,6 +14,7 @@
 {
   imports = [
     ./hardware-configuration.nix
+    ./autostart.nix
     ../../modules/programs/1password.nix
   ];
 
@@ -83,6 +84,10 @@
     enable = true;
     username = "fahimalizain";
   };
+
+  # Start 1Password minimised to the system tray on login.
+  # autostart.nix writes ~/.config/autostart/1password.desktop.
+  my_services.autostart._1password = true;
 
   # Allow unfree packages (1Password is unfree)
   nixpkgs.config.allowUnfree = true;
