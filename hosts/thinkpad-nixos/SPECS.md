@@ -168,7 +168,7 @@ initrd availableKernelModules:
 - ✅ nix-ld (unpatched binaries)
 - ✅ Intel microcode updates
 - ❌ Docker / libvirt
-- ❌ RustDesk
+- ✅ RustDesk
 - ❌ Tailscale / Cloudflare
 - ❌ Bluetooth
 - ❌ Fingerprint reader

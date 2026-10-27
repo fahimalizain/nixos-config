@@ -4,6 +4,7 @@
 # Everything mirrors the stock installer configuration except:
 #   - hostname is thinkpad-nixos (matches the flake attribute / nrs alias)
 #   - 1Password GUI + CLI are installed
+#   - RustDesk is installed for remote desktop access
 #   - flakes are enabled, which is required to rebuild from ~/nixos-config
 #
 # Keep this file in sync with the live system: anything configured by hand
@@ -16,6 +17,7 @@
     ./hardware-configuration.nix
     ./autostart.nix
     ../../modules/programs/1password.nix
+    ../../modules/programs/rustdesk.nix
   ];
 
   # Use the systemd-boot EFI boot loader.
@@ -88,6 +90,14 @@
   # Start 1Password minimised to the system tray on login.
   # autostart.nix writes ~/.config/autostart/1password.desktop.
   my_services.autostart._1password = true;
+
+  # RustDesk remote desktop. The module installs rustdesk-flutter and runs
+  # the background service, so incoming connections work without a login.
+  my_programs.rustdesk.enable = true;
+
+  # Start the RustDesk GUI on login.
+  # autostart.nix writes ~/.config/autostart/rustdesk.desktop.
+  my_services.autostart.rustdesk = true;
 
   # Allow unfree packages (1Password is unfree)
   nixpkgs.config.allowUnfree = true;
