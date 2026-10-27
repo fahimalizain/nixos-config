@@ -69,7 +69,6 @@
       "spotify"
       "sony-ps-remote-play"
       "obsidian"
-      "cloudflare-warp"
       "conductor"
       "docker-desktop"
       "shottr"
@@ -162,7 +161,6 @@
   system.stateVersion = 5;
 
   # This only adds Zero Trust hosts entries to /etc/hosts.
-  # Cloudflare WARP itself is installed via the `cloudflare-warp` brew cask above.
   my_services.cloudflare = {
     zerotrust.fahimalizain.enable = true;
     tunnel.enable = true;  # Installs cloudflared for ngrok-like tunnels
