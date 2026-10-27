@@ -63,12 +63,23 @@ in
 
   home.shellAliases = let
     rebuild = if isDarwin then "darwin-rebuild" else "nixos-rebuild";
+    # Absolute path on purpose: NIXOS_CONFIG is only exported to login
+    # shells, so it was empty in desktop terminals.
+    configDir = "${config.home.homeDirectory}/nixos-config";
   in {
-    nrs = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo SSH_AUTH_SOCK=$SSH_AUTH_SOCK ${rebuild} switch --flake $NIXOS_CONFIG#${hostname}";
-    nrb = "$NIXOS_CONFIG/scripts/hook_prebuild.sh && sudo SSH_AUTH_SOCK=$SSH_AUTH_SOCK ${rebuild} build --flake $NIXOS_CONFIG#${hostname}";
+    nrs = "${configDir}/scripts/hook_prebuild.sh && sudo SSH_AUTH_SOCK=$SSH_AUTH_SOCK ${rebuild} switch --flake ${configDir}#${hostname}";
+    nrb = "${configDir}/scripts/hook_prebuild.sh && sudo SSH_AUTH_SOCK=$SSH_AUTH_SOCK ${rebuild} build --flake ${configDir}#${hostname}";
   } // lib.optionalAttrs isDarwin {
     brew-upgrade = "brew update && brew upgrade";
   };
+
+  # hm-session-vars.sh is only sourced by login shells (~/.profile), so
+  # interactive terminals never saw NIXOS_CONFIG. Source it from .bashrc too.
+  programs.bash.initExtra = lib.optionalString (!isDarwin) ''
+    if [ -f /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh ]; then
+      . /etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh
+    fi
+  '';
 
   # This value determines the Home Manager release
   home.stateVersion = "25.11";
