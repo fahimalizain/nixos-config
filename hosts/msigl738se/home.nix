@@ -39,7 +39,7 @@
         # A .pub path is deliberate: there is no private key file to point
         # at. ssh reads the public half and asks the agent to sign with the
         # matching key.
-        IdentityFile = "~/.ssh/ThinkPadWin11.pub";
+        IdentityFile = "~/.ssh/MSIGL738SE-NixOS.pub";
         # Keep GitHub's pinned keys separate so the normal known_hosts stays
         # writable for every other server.
         UserKnownHostsFile = "~/.ssh/known_hosts_github";
@@ -54,8 +54,8 @@
 
   # Public half of the GitHub key. The private half stays in 1Password;
   # this file exists only so ssh knows which agent key to offer.
-  home.file.".ssh/ThinkPadWin11.pub".text = ''
-    ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILieUm950JC3gpMaivRTY4yNs8LVS7ZmMTwxlyBE2Qnu ThinkPadWin11
+  home.file.".ssh/MSIGL738SE-NixOS.pub".text = ''
+    ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKCnOaNsNW56S75t1Ykee15eXOruLxxKqvksGE1t5afA MSIGL738SE-NixOS
   '';
 
   # GitHub's published host keys, pinned so the first connection neither
