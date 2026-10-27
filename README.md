@@ -77,10 +77,14 @@ cp /etc/nixos/hardware-configuration.nix hosts/thinkpad-nixos/
 # Build and switch
 sudo nixos-rebuild switch --flake .#thinkpad-nixos
 
-# (Optional) Replace /etc/nixos with symlink
+# Replace /etc/nixos with a symlink to this repo
 sudo mv /etc/nixos /etc/nixos.backup
 sudo ln -s ~/nixos-config /etc/nixos
 ```
+
+> The symlink prevents accidentally building the stock
+> `/etc/nixos/configuration.nix`: a bare `nixos-rebuild` now fails instead of
+> silently switching back to the old installer config.
 
 ### Daily Usage
 

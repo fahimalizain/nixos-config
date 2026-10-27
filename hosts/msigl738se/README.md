@@ -59,8 +59,8 @@ from the next section exists.
   on `tailscale0` only.
 - Unlike the ThinkPad, this host does not enable the battery charge threshold
   module (the MSI embedded controller does not expose that interface).
-- `/etc/nixos` on this machine is still the stock directory. After switching,
-  point it at the repo once to match the ThinkPad setup:
+- `/etc/nixos` is a symlink to `~/nixos-config`, matching the ThinkPad setup.
+  On a reinstall, recreate it once after the first switch:
 
   ```bash
   sudo mv /etc/nixos /etc/nixos.backup

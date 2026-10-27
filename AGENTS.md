@@ -61,7 +61,7 @@ nixosConfigurations.new-hostname = nixpkgs.lib.nixosSystem {
 1. **NEVER run `nixos-rebuild` commands** - Do not run `nrs`, `nrb`, `nixos-rebuild switch`, `nixos-rebuild build`, or any rebuild commands. Only make the file changes; let the user handle rebuilding. ⚠️ This is critical - running rebuild commands can break the user's system.
 2. **Always use `--flake .#hostname`** when rebuilding (user runs this), not just `nixos-rebuild switch`
 3. **Git track all files** - Nix flakes only see files tracked by git
-4. **Don't edit `/etc/nixos/` directly** - It's symlinked to `~/nixos-config`
+4. **Don't edit `/etc/nixos/` directly** - It's a symlink to `~/nixos-config`; edit files in the repo instead
 5. **Home Manager is integrated** - User configs rebuild automatically with system
 
 ### Rebuilding (User-Only Operation)
