@@ -11,10 +11,23 @@ My personal NixOS configuration using Flakes and Home Manager.
 ├── README.md              # This file
 ├── AGENTS.md              # Instructions for AI assistants
 ├── hosts/
-│   └── thinkpad-nixos/    # Host-specific configurations
+│   ├── msigl738se/        # MSI GL73 8SE (k3s agent)
+│   │   ├── default.nix    # Main host configuration
+│   │   └── hardware-configuration.nix
+│   └── thinkpad-nixos/    # ThinkPad T14 Gen 2i (k3s server)
 │       ├── default.nix    # Main host configuration
-│       └── hardware.nix   # Hardware-specific settings
+│       └── hardware-configuration.nix
 ```
+
+## Hosts
+
+| Host | Hardware | k3s role |
+|------|----------|----------|
+| `thinkpad-nixos` | ThinkPad T14 Gen 2i | server (control plane) |
+| `msigl738se` | MSI GL73 8SE | agent (worker) |
+
+The agent joins over Tailscale. See `hosts/msigl738se/README.md` for the
+one-time token setup.
 
 ## Quick Start
 
@@ -94,7 +107,7 @@ Edit `home.nix` and add to `home.packages`
 ## Adding New Hosts
 
 1. Copy `hosts/thinkpad-nixos/` to `hosts/new-hostname/`
-2. Update `hardware.nix` for the new hardware
+2. Update `hardware-configuration.nix` for the new hardware
 3. Add new host to `flake.nix` in the `nixosConfigurations` section
 4. Build with `sudo nixos-rebuild switch --flake .#new-hostname`
 

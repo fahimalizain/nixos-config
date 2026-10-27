@@ -56,6 +56,34 @@
           }
         ];
       };
+
+      msigl738se = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = {
+          inherit inputs;
+          pkgs-unstable = mkPkgsUnstable "x86_64-linux";
+          hostname = "msigl738se";
+          operatingSystem = "nixos";
+        };
+        modules = [
+          ./hosts/msigl738se
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = {
+              pkgs-unstable = mkPkgsUnstable "x86_64-linux";
+              hostname = "msigl738se";
+            };
+            home-manager.users.fahimalizain = { config, pkgs, pkgs-unstable, hostname, ... }: {
+              imports = [
+                ./home.nix
+                ./hosts/msigl738se/home.nix
+              ];
+            };
+          }
+        ];
+      };
     };
 
     darwinConfigurations = {
