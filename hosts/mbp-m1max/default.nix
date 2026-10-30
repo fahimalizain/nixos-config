@@ -45,6 +45,7 @@
       "node"          # system Node/npm (openchamber CLI + general use)
       "nvm"           # per-project Node versions; not used for openchamber
       "rclone"
+      "render"        # Render CLI (official Go binary; in homebrew-core, no tap)
       "ripgrep"
       "scrcpy"
       { name = "openjdk@21"; link = true; }
