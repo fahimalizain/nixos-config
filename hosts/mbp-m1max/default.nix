@@ -38,6 +38,7 @@
       "bazelisk"
       "buildifier"
       "cloudflare-wrangler"
+      "ffmpeg"
       "gh"
       "hashicorp/tap/terraform"
       "herdr"         # terminal workspace manager for AI coding agents (bottled)
@@ -48,6 +49,7 @@
       "render"        # Render CLI (official Go binary; in homebrew-core, no tap)
       "ripgrep"
       "scrcpy"
+      "yt-dlp"
       { name = "openjdk@21"; link = true; }
     ];
     casks = [
