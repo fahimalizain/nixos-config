@@ -65,6 +65,7 @@
       "webex"
       "microsoft-teams"
       "iina"
+      "obs"
       "visual-studio-code"
       "slack"
       "discord"
