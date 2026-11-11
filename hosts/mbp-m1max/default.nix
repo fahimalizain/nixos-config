@@ -34,7 +34,6 @@
     brews = [
       "agent-browser"
       "awscli"
-      "azure-cli"
       "bazelisk"
       "buildifier"
       "cloudflare-wrangler"
@@ -53,6 +52,11 @@
       { name = "openjdk@21"; link = true; }
     ];
     casks = [
+      # Migrated out of homebrew-core to homebrew-cask on 2026-10-06
+      # (Homebrew/homebrew-core@6ba16894, "azure-cli: migrate to
+      # homebrew-cask"), so it must be a cask; `brew "azure-cli"` no longer
+      # resolves and fails the whole brew bundle.
+      "azure-cli"
       "esengine/reasonix/reasonix"
       "tailscale-app"
       "lulu"
