@@ -3,6 +3,8 @@ let
   isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
 in
 {
+  imports = [ ./modules/home/boat.nix ];
+
   # Common packages for all hosts
   home.packages = with pkgs; [
     procps       # watch, ps, top

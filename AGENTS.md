@@ -170,6 +170,11 @@ Follow NixOS conventions:
 - **`modules/hardware/`** - Hardware-specific configurations
   - Example: `nvidia.nix`, `bluetooth.nix`, `trackpoint.nix`
 
+- **`modules/home/`** - Home-manager modules (user-level: PATH, shell init, dotfiles)
+  - Example: `boat.nix` - PATH + shell wrapper for a vendor-installed CLI
+  - Imported once from `home.nix`, never from a host `default.nix`
+  - Enabled with `my_programs.<name>.enable = true;`
+
 - **`modules/profiles/`** - High-level system profiles
   - Example: `workstation.nix` - common dev tools
   - Example: `gaming.nix`, `server.nix`
@@ -196,5 +201,7 @@ Start monolithic, extract gradually:
 1. Create file in appropriate subdirectory (e.g., `modules/programs/mynewapp.nix`)
 2. Define `options` (enable switch, package choice)
 3. Define `config` (what happens when enabled)
-4. Import in host's `default.nix`: `../../modules/programs/mynewapp.nix`
-5. Enable in host config: `programs.mynewapp.enable = true;`
+4. Import it:
+   - System module: in the host's `default.nix` — `../../modules/programs/mynewapp.nix`
+   - Home-manager module (`modules/home/`): once in `home.nix` — `./modules/home/mynewapp.nix`
+5. Enable it: `my_programs.mynewapp.enable = true;` (system or home, same prefix)

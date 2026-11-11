@@ -67,4 +67,9 @@
     export ANDROID_HOME="$HOME/Library/Android/sdk"
     export PATH="$ANDROID_HOME/platform-tools:$PATH"
   '';
+
+  # boat.dev sandbox CLI. PATH + the `boat()` wrapper + config seed live in
+  # modules/home/boat.nix; the binary itself is installed by the vendor's curl
+  # script into ~/.ascii/bin because it self-updates in place.
+  my_programs.boat.enable = true;
 }
