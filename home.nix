@@ -16,11 +16,12 @@ in
     mtr          # dynamic traceroute + ping combo
     dnsutils     # dig, nslookup
   ]
-  # Linux-only networking tools
+  # Linux-only tools (darwin uses Homebrew for these)
   ++ lib.optionals (!isDarwin) (with pkgs; [
     traceroute   # trace network paths
     ethtool      # NIC inspection and configuration
     iproute2     # ip, ss
+    gh           # GitHub CLI; macOS gets it from Homebrew
   ]);
 
   # Git configuration
