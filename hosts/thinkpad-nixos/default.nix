@@ -20,6 +20,7 @@
     ../../modules/hardware/battery-charge-threshold.nix
     ../../modules/programs/1password.nix
     ../../modules/programs/rustdesk.nix
+    ../../modules/services/cloudflare.nix
     ../../modules/services/k3s.nix
     ../../modules/services/tailscale.nix
   ];
@@ -128,6 +129,15 @@
   # Stable address for the API, independent of Wi-Fi/DHCP changes. The k3s
   # module opens 6443 on tailscale0 when this is enabled.
   my_services.tailscale.enable = true;
+
+  # Installs the cloudflared CLI and runs a token-based connector for
+  # host-local services. Create /etc/cloudflared/token (mode 0600) first;
+  # without it the unit is skipped at boot. The tunnel serving public app
+  # hostnames is the Flux-managed Deployment in the homek3s repo.
+  my_services.cloudflare.tunnel = {
+    enable = true;
+    tokenFile = "/etc/cloudflared/token";
+  };
 
   # This machine runs 24x7 on AC power, so keep the battery in its
   # long-life window instead of holding it at 100% all the time.

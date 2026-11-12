@@ -171,7 +171,8 @@ initrd availableKernelModules:
 - ✅ Battery charge limit (60%)
 - ❌ Docker / libvirt
 - ✅ RustDesk
-- ❌ Tailscale / Cloudflare
+- ✅ Tailscale
+- ✅ cloudflared CLI + token-based tunnel service (opt-in)
 - ❌ Bluetooth
 - ❌ Fingerprint reader
 - ❌ TrackPoint wheel emulation

@@ -22,7 +22,18 @@ in
       enable = mkEnableOption "Cloudflare WARP (Cloudflare One Client)" // { default = false; };
     };
     tunnel = {
-      enable = mkEnableOption "Cloudflare Tunnel (cloudflared)" // { default = false; };
+      enable = mkEnableOption "cloudflared CLI (and a token-based tunnel when tokenFile is set)" // { default = false; };
+      tokenFile = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        example = "/etc/cloudflared/token";
+        description = ''
+          Path to a file containing a remotely-managed tunnel token. When set
+          (and `enable` is true), a `cloudflared` systemd service is started on
+          NixOS. The token is loaded through systemd credentials, so the file
+          only needs to be readable by root.
+        '';
+      };
     };
     zerotrust = {
       fahimalizain = {
@@ -31,20 +42,41 @@ in
     };
   };
 
-  config = mkMerge ([] ++ optionals (operatingSystem == "nixos") [
-    (mkIf cfg.warp.enable {
-      # Enable the cloudflare-warp service (module already in nixos-25.11)
-      # but override the package to use nixos-unstable version
-      services.cloudflare-warp = {
-        enable = true;
-        package = nixos-unstable.cloudflare-warp;
-      };
-    })
-  ] ++ [
-    (mkIf cfg.tunnel.enable {
-      environment.systemPackages = [ nixos-unstable.cloudflared ];
-    })
-    (mkIf cfg.zerotrust.fahimalizain.enable (
+  config = mkMerge (
+    optionals (operatingSystem == "nixos") [
+      (mkIf cfg.warp.enable {
+        # Enable the cloudflare-warp service (module already in nixos-25.11)
+        # but override the package to use nixos-unstable version
+        services.cloudflare-warp = {
+          enable = true;
+          package = nixos-unstable.cloudflare-warp;
+        };
+      })
+      (mkIf (cfg.tunnel.enable && cfg.tunnel.tokenFile != null) {
+        systemd.services.cloudflared = {
+          description = "Cloudflare Tunnel";
+          wantedBy = [ "multi-user.target" ];
+          after = [ "network-online.target" ];
+          wants = [ "network-online.target" ];
+
+          # Allow booting before the token has been provisioned.
+          unitConfig.ConditionPathExists = cfg.tunnel.tokenFile;
+
+          serviceConfig = {
+            DynamicUser = true;
+            LoadCredential = [ "token:${cfg.tunnel.tokenFile}" ];
+            ExecStart = "${nixos-unstable.cloudflared}/bin/cloudflared tunnel --no-autoupdate run --token-file %d/token";
+            Restart = "on-failure";
+            RestartSec = 5;
+          };
+        };
+      })
+    ]
+    ++ [
+      (mkIf cfg.tunnel.enable {
+        environment.systemPackages = [ nixos-unstable.cloudflared ];
+      })
+      (mkIf cfg.zerotrust.fahimalizain.enable (
       # Cloudflare Zero Trust virtual network hosts (fahimalizain organization)
       if operatingSystem == "darwin" then {
         # nix-darwin doesn't have networking.hosts; append via activation script.
